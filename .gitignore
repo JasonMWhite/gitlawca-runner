@@ -90,3 +90,5 @@ ENV/
 
 # Custom ignores
 .idea/
+bin/
+pyvenv.cfg
