@@ -1,3 +1,11 @@
+setup:
+	pip install -e .
+	pip install -r requirements/dev.txt
+
+setup_ci:
+	pip install -e .
+	pip install -r requirements/ci.txt
+
 ci: test lint
 	@echo "CI complete"
 
