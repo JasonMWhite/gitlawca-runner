@@ -93,3 +93,5 @@ ENV/
 bin/
 pyvenv.cfg
 .DS_Store
+pip-selfcheck.json
+share/
