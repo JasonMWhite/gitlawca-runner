@@ -3,7 +3,7 @@ ci: test lint
 
 lint:
 	@echo "Running pylint"
-	@pylint python_template tests --msg-template="{path}:{line}:{column} {msg_id}({symbol}) {msg}"
+	@pylint python_template tests pylint_custom --msg-template="{path}:{line}:{column} {msg_id}({symbol}) {msg}"
 
 test:
 	@echo "Running pytest"
