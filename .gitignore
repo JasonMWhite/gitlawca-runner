@@ -92,3 +92,4 @@ ENV/
 .idea/
 bin/
 pyvenv.cfg
+.DS_Store
