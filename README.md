@@ -29,8 +29,8 @@ A Python template repo to save you some yak-shaving.
   * `git push -u origin master`
 7. Activate the virtual environment
   * `source bin/activate`
-8. Install local dependencies
-  * `pip install -r requirements/dev.txt`
+8. Run setup
+  * `make setup`
 9. Code away!
 10. When you're done, you can type `deactivate` to leave the virtual environment.
 
