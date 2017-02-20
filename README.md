@@ -1,6 +1,7 @@
 # python_template
 A Python template repo to save you some yak-shaving.
 
+[![Build Status](https://travis-ci.org/JasonMWhite/python_template.svg?branch=master)](https://travis-ci.org/JasonMWhite/python_template)
 
 ## Usage
 1. Create an empty repository on Github for your project
@@ -18,3 +19,8 @@ A Python template repo to save you some yak-shaving.
   * `source bin/activate`
 8. Install local dependencies
   * `pip install -r requirements/dev.txt`
+9. Code away!
+10. When you're done, you can type `deactivate` to leave the virtual environment.
+
+Repeat steps 7-10 each time you want to make changes.
+(Step 8 will only be necessary if you've modified the requirements)
