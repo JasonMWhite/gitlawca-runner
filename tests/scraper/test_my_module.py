@@ -1,5 +1,5 @@
 import pytest
-from python_template import my_module
+from scraper import my_module
 
 
 class TestMyClass:

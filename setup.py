@@ -1,14 +1,14 @@
 from setuptools import setup
 
 setup(
-    name='python_template',
+    name='scraper',
     version='0.1.0',
     description='A Python template repo to save you some yak-shaving.',
     long_description='',
     author='Jason White',
     author_email='jason.white@shopify.com',
-    url='https://github.com/JasonMWhite/python_template',
-    packages=['python_template', 'pylint_custom'],
+    url='https://github.com/JasonMWhite/scraper',
+    packages=['scraper', 'pylint_custom'],
     include_package_data=True,
     install_requires=[
     ],
