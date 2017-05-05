@@ -8,8 +8,8 @@ from google.cloud import datastore as google_datastore
 LOG = logging.getLogger('gitlawca')
 
 
-@pytest.fixture(scope='module')
-def datastore_client():
+@pytest.fixture(scope='session')
+def datastore_service():
     LOG.info("Starting gcloud datastore emulator")
     p = psutil.Popen(['gcloud', 'beta', 'emulators', 'datastore', 'start', '--no-store-on-disk'], stderr=subprocess.PIPE)
 
@@ -22,8 +22,7 @@ def datastore_client():
     os.environ['DATASTORE_EMULATOR_HOST'] = address
     os.environ['DATASTORE_PROJECT_ID'] = 'gitlawca'
 
-    ds = google_datastore.Client('gitlawca')
-    yield ds
+    yield google_datastore.Client('gitlawca')
 
     children = p.children()
     while children:
@@ -35,3 +34,14 @@ def datastore_client():
         LOG.info("Terminated gcloud datastore emulator")
     else:
         LOG.error("Could not find gcloud datastore emulator process to terminate")
+
+
+@pytest.fixture
+def datastore_client(datastore_service):
+    assert 'DATASTORE_EMULATOR_HOST' in os.environ
+    yield datastore_service
+
+    query = datastore_service.query()
+    query.keys_only()
+    for row in query.fetch():
+        datastore_service.delete(row.key)
