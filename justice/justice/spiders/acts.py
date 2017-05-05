@@ -16,28 +16,32 @@ class ActsSpider(scrapy.Spider):
 
     def start_requests(self):
         for url in self.start_urls:
-            yield scrapy.Request(url=url, callback=self.parse_main_page)
+            yield scrapy.Request(url=url, callback=self._parse_main_page)
 
-    def parse_main_page(self, response):
+    @classmethod
+    def _parse_main_page(cls, response):
         for link in response.xpath('//div[@id="alphaList"]//a[@class="btn btn-default"]'):
             url = link.xpath('@href').extract_first()
-            yield scrapy.Request(url=response.urljoin(url), callback=self.parse_letter)
+            yield scrapy.Request(url=response.urljoin(url), callback=cls._parse_letter)
 
-    def parse_letter(self, response):
+    @classmethod
+    def _parse_letter(cls, response):
         for link in response.xpath('//div[@class="contentBlock"]/ul/li/span[@class="objTitle"]/a'):
             url = link.xpath('@href').extract_first()
             metadata = {
                 'title': link.xpath('text()').extract_first().strip(),
                 'code': url.split('/')[0].split('.html')[0]
             }
-            yield scrapy.Request(url=response.urljoin(url), callback=self.parse_act, meta=metadata)
+            yield scrapy.Request(url=response.urljoin(url), callback=cls._parse_act, meta=metadata)
 
-    def parse_act(self, response):
+    @classmethod
+    def _parse_act(cls, response):
         for link in response.xpath('//div[@id="printAll"]/ul/li/a[text()="HTML"]'):
             url = link.xpath('@href').extract_first()
-            yield scrapy.Request(url=response.urljoin(url), callback=self.parse_act_fulltext, meta=response.meta)
+            yield scrapy.Request(url=response.urljoin(url), callback=cls._parse_act_fulltext, meta=response.meta)
 
-    def parse_act_fulltext(self, response):
+    @staticmethod
+    def _parse_act_fulltext(response):
         for doc in response.xpath('//div[@id="docCont"]'):
             yield items.ActItem(
                 body=doc.extract(),

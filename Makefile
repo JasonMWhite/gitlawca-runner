@@ -1,10 +1,12 @@
 setup:
 	pip install -e .
 	pip install -r requirements/dev.txt
+	gcloud components install cloud-datastore-emulator --quiet
 
 setup_ci:
 	pip install -e .
 	pip install -r requirements/ci.txt
+	gcloud components install cloud-datastore-emulator --quiet
 
 ci: test lint typing
 	@echo "CI complete"
