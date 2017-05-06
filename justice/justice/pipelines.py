@@ -8,7 +8,7 @@ from justice.justice.items import ActItem
 
 class DataStoreExporter(exporters.BaseItemExporter):
 
-    def __init__(self, ds: datastore.Client, st: storage.Client, **kwargs):
+    def __init__(self, ds: datastore.Client, st: storage.Client, **kwargs) -> None:
         super().__init__(**kwargs)
         self.__datastore = ds
         self.__bucket = st.get_bucket('gitlawca.appspot.com')
@@ -64,7 +64,7 @@ class JusticePipeline(object):
         crawler.signals.connect(pipeline.spider_closed, signals.spider_closed)
         return pipeline
 
-    def spider_opened(self, _):
+    def spider_opened(self, spider):  # pylint:disable=unused-argument
         dstore = datastore.Client('gitlawca')
         stor = storage.Client('gitlawca')
 

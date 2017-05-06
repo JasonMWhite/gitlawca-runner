@@ -1,8 +1,8 @@
 import abc
-import io
 import random
 import os
 import sys
+import typing
 from google.cloud import storage  # pylint:disable=import-error
 
 
@@ -16,7 +16,7 @@ class Blob(metaclass=abc.ABCMeta):
     def delete(self) -> None:
         pass
 
-    def upload_from_file(self, file: io.BufferedIOBase) -> None:
+    def upload_from_file(self, file: typing.IO[typing.Any]) -> None:
         pass
 
     def upload_from_filename(self, filename: str) -> None:
@@ -25,7 +25,7 @@ class Blob(metaclass=abc.ABCMeta):
     def upload_from_string(self, data: str) -> None:
         pass
 
-    def download_to_file(self, file: io.BufferedIOBase) -> None:
+    def download_to_file(self, file: typing.IO[typing.Any]) -> None:
         pass
 
     def download_to_filename(self, filename: str) -> None:
@@ -55,7 +55,7 @@ class MockBlob(Blob):
         assert os.path.exists(self.__path)
         os.remove(self.__path)
 
-    def upload_from_file(self, file: io.BufferedIOBase) -> None:
+    def upload_from_file(self, file: typing.IO[typing.Any]) -> None:
         dirname = os.path.dirname(self.__path)
         if not os.path.exists(dirname):
             os.makedirs(dirname)
@@ -64,7 +64,7 @@ class MockBlob(Blob):
 
     def upload_from_filename(self, filename: str) -> None:
         with open(filename, 'rb') as f:
-            return self.upload_from_file(f)
+            self.upload_from_file(f)
 
     def upload_from_string(self, data: str) -> None:
         dirname = os.path.dirname(self.__path)
@@ -73,7 +73,7 @@ class MockBlob(Blob):
         with open(self.__path, 'w') as f:
             f.write(data)
 
-    def download_to_file(self, file: io.BufferedIOBase) -> None:
+    def download_to_file(self, file: typing.IO[typing.Any]) -> None:
         with open(self.__path, 'rb') as f:
             file.write(f.read())
 
@@ -108,7 +108,7 @@ class GoogleBlob(Blob):
     def delete(self) -> None:
         self.__blob.delete()
 
-    def upload_from_file(self, file: io.BufferedIOBase) -> None:
+    def upload_from_file(self, file: typing.IO[typing.Any]) -> None:
         self.__blob.upload_from_file(file)
 
     def upload_from_filename(self, filename: str) -> None:
@@ -117,7 +117,7 @@ class GoogleBlob(Blob):
     def upload_from_string(self, data: str) -> None:
         self.__blob.upload_from_string(data)
 
-    def download_to_file(self, file: io.BufferedIOBase) -> None:
+    def download_to_file(self, file: typing.IO[typing.Any]) -> None:
         self.__blob.download_to_file(file)
 
     def download_to_filename(self, filename: str) -> None:
