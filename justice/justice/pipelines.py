@@ -1,6 +1,6 @@
 import typing
-from google.cloud import datastore
-from google.cloud import storage
+from google.cloud import datastore  # pylint:disable=import-error
+from google.cloud import storage  # pylint:disable=import-error
 from scrapy import exporters
 from scrapy import signals
 from justice.justice.items import ActItem
@@ -64,16 +64,16 @@ class JusticePipeline(object):
         crawler.signals.connect(pipeline.spider_closed, signals.spider_closed)
         return pipeline
 
-    def spider_opened(self, spider):
-        ds = datastore.Client('gitlawca')
-        st = storage.Client('gitlawca')
+    def spider_opened(self, _):
+        dstore = datastore.Client('gitlawca')
+        stor = storage.Client('gitlawca')
 
-        self.exporter = DataStoreExporter(ds, st)
+        self.exporter = DataStoreExporter(dstore, stor)
         self.exporter.start_exporting()
 
-    def spider_closed(self, spider):
+    def spider_closed(self, _):
         self.exporter.finish_exporting()
 
-    def process_item(self, item, spider):
+    def process_item(self, item, _):
         self.exporter.export_item(item)
         return item

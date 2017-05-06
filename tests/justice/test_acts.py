@@ -1,6 +1,6 @@
 import json
 import os
-import py
+import py  # pylint:disable=unused-import
 import pytest
 from scrapy.crawler import CrawlerProcess
 from scrapy.settings import Settings
@@ -8,7 +8,7 @@ from justice.justice.spiders import acts
 
 
 @pytest.fixture
-def output(tmpdir: py._path.local.LocalPath) -> py._path.local.LocalPath:
+def output(tmpdir: 'py.path.local') -> 'py.path.local':
     test_home = os.path.join(os.path.dirname(__file__), 'fixtures/acts_home.html')
 
     start_urls = ['file://' + test_home]
@@ -27,11 +27,11 @@ def output(tmpdir: py._path.local.LocalPath) -> py._path.local.LocalPath:
     return feed_url
 
 
-def test_output(output: py._path.local.LocalPath):
+def test_output(output: 'py.path.local'):
     with output.open('r') as f:
-        output = json.loads(f.read())
+        result = json.loads(f.read())
 
-    assert sorted(output, key=lambda r: r['code']) == [
+    assert sorted(result, key=lambda r: r['code']) == [
         {'code': 'A-1', 'title': 'Access to Information Act'},
         {'code': 'A-1.5', 'title': 'Administrative Tribunals Support Service of Canada Act'},
         {'code': 'B-1.01', 'title': 'Bank Act'},

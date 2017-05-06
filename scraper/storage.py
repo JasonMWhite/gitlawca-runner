@@ -3,7 +3,7 @@ import io
 import random
 import os
 import sys
-from google.cloud import storage
+from google.cloud import storage  # pylint:disable=import-error
 
 
 class Blob(metaclass=abc.ABCMeta):
@@ -137,8 +137,8 @@ class GoogleStorage(Storage):
 
 def get_storage() -> Storage:
     if os.environ.get('GITLAWCA') == 'production':
-        st = storage.Client('gitlawca')
-        return GoogleStorage(st.get_bucket('gitlawca.appspot.com'))
+        stor = storage.Client('gitlawca')
+        return GoogleStorage(stor.get_bucket('gitlawca.appspot.com'))
     else:
         temp_path = os.path.join('/tmp/gitlawca', str(random.randint(1, sys.maxsize)))
         if not os.path.exists(temp_path):

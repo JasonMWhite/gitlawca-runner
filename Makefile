@@ -13,7 +13,7 @@ ci: test lint typing
 
 lint:
 	@echo "Running pylint"
-	@pylint python_template tests pylint_custom --msg-template="{path}:{line}:{column} {msg_id}({symbol}) {msg}"
+	@pylint --rcfile=pylintrc tests justice scraper pylint_custom
 
 test:
 	@echo "Running pytest"
@@ -21,4 +21,4 @@ test:
 
 typing:
 	@echo "Running mypy"
-	@mypy python_template pylint_custom tests --ignore-missing-imports
+	@mypy tests justice scraper pylint_custom --ignore-missing-imports

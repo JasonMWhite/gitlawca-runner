@@ -1,9 +1,9 @@
 import logging
 import os
+import subprocess
 import psutil
 import pytest
-import subprocess
-from google.cloud import datastore as google_datastore
+from google.cloud import datastore as google_datastore  # pylint:disable=import-error
 
 LOG = logging.getLogger('gitlawca')
 
@@ -11,10 +11,11 @@ LOG = logging.getLogger('gitlawca')
 @pytest.fixture(scope='session')
 def datastore_service():
     LOG.info("Starting gcloud datastore emulator")
-    p = psutil.Popen(['gcloud', 'beta', 'emulators', 'datastore', 'start', '--no-store-on-disk'], stderr=subprocess.PIPE)
+    proc = psutil.Popen(['gcloud', 'beta', 'emulators', 'datastore', 'start', '--no-store-on-disk'],
+                        stderr=subprocess.PIPE)
 
     while True:
-        inline = p.stderr.readline().decode('utf-8').strip()
+        inline = proc.stderr.readline().decode('utf-8').strip()
         if 'export DATASTORE_EMULATOR_HOST=' in inline:
             break
 
@@ -24,7 +25,7 @@ def datastore_service():
 
     yield google_datastore.Client('gitlawca')
 
-    children = p.children()
+    children = proc.children()
     while children:
         if children[0].name() == 'java':
             break

@@ -1,12 +1,12 @@
 import io
 import os
-import py
+import py  # pylint:disable=unused-import
 import pytest
 from scraper import storage
 
 
 @pytest.fixture
-def mock_storage(tmpdir: py._path.local.LocalPath) -> storage.Storage:
+def mock_storage(tmpdir: 'py.path.local') -> storage.Storage:
     return storage.MockStorage(os.path.join(tmpdir, 'storage'))
 
 
@@ -40,7 +40,7 @@ def test_download_to_file(mock_storage: storage.Storage):
     assert output.read().decode('utf-8') == 'testing'
 
 
-def test_upload_from_filename(tmpdir: py._path.local.LocalPath, mock_storage: storage.Storage):
+def test_upload_from_filename(tmpdir: 'py.path.local', mock_storage: storage.Storage):
     filename = os.path.join(tmpdir, 'testing.txt')
     data = 'testing'
     with open(filename, 'w') as f:
@@ -50,7 +50,7 @@ def test_upload_from_filename(tmpdir: py._path.local.LocalPath, mock_storage: st
     assert mock_blob.download_to_string() == data
 
 
-def test_download_to_filename(tmpdir: py._path.local.LocalPath, mock_storage: storage.Storage):
+def test_download_to_filename(tmpdir: 'py.path.local', mock_storage: storage.Storage):
     filename = os.path.join(tmpdir, 'testing.txt')
     data = 'testing'
     mock_blob = mock_storage.get_blob('foo/bar')
@@ -77,9 +77,9 @@ def test_delete(mock_storage: storage.Storage):
 
 def test_get_storage_not_production():
     assert os.environ.get('GITLAWCA') != 'production'
-    st = storage.get_storage()
-    assert isinstance(st, storage.MockStorage)
+    mock_storage = storage.get_storage()
+    assert isinstance(mock_storage, storage.MockStorage)
 
-    mock_blob = st.get_blob('foo/bar/baz')
+    mock_blob = mock_storage.get_blob('foo/bar/baz')
     mock_blob.upload_from_string('testing')
     assert mock_blob.download_to_string() == 'testing'

@@ -1,5 +1,5 @@
 import time
-from google.cloud import datastore
+from google.cloud import datastore  # pylint:disable=import-error
 
 
 def test_datastore_is_clean(datastore_client):

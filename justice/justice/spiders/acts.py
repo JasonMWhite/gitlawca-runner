@@ -14,6 +14,9 @@ class ActsSpider(scrapy.Spider):
         'LOG_LEVEL': 'WARNING',
     }
 
+    def parse(self, _):
+        pass
+
     def start_requests(self):
         for url in self.start_urls:
             yield scrapy.Request(url=url, callback=self._parse_main_page)
