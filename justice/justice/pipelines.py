@@ -55,7 +55,7 @@ class DataStoreExporter(exporters.BaseItemExporter):
 class JusticePipeline(object):
 
     def __init__(self):
-        self.exporter = None  # type: DataStoreExporter
+        self.exporter = None  # type: typing.Optional[DataStoreExporter]
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -71,7 +71,7 @@ class JusticePipeline(object):
         self.exporter = DataStoreExporter(dstore, stor)
         self.exporter.start_exporting()
 
-    def spider_closed(self, _):
+    def spider_closed(self, spider):  # pylint:disable=unused-argument
         self.exporter.finish_exporting()
 
     def process_item(self, item, _):
