@@ -14,7 +14,7 @@ def datastore_service():
     LOG.info("Starting gcloud datastore emulator")
     system = install.get_platform()
     if not install.detect_gcloud(system):
-        os.environ['PATH'] += os.path.join(install.installation_folder(), 'google-cloud-sdk', 'bin')
+        os.environ['PATH'] += os.path.pathsep + os.path.join(install.installation_folder(), 'google-cloud-sdk', 'bin')
     assert install.detect_gcloud(system)
     with psutil.Popen(['gcloud', 'beta', 'emulators', 'datastore', 'start', '--no-store-on-disk'],
                       stderr=subprocess.PIPE) as proc:

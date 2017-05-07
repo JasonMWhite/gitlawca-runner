@@ -96,7 +96,6 @@ def run_gcloud_installation(base_path: str) -> None:
     path = os.path.join(base_path, 'google-cloud-sdk', 'install.sh')
     LOG.warning('Installing gcloud SDK')
     subprocess.run([path, '--additional-components', 'beta', 'cloud-datastore-emulator', '--quiet'])
-    os.environ['PATH'] += os.pathsep + os.path.join(base_path, 'google-cloud-sdk', 'bin', 'gcloud')
     LOG.warning('To add gcloud to your bash path and add autocompletion, source these files:')
     LOG.warning("- source '{}/google-cloud-sdk/path.bash.inc'".format(base_path))
     LOG.warning("- source '{}/google-cloud-sdk/completion.bash.inc'".format(base_path))
