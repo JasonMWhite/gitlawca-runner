@@ -111,6 +111,9 @@ def install_gcloud(root_folder: str) -> None:
         run_gcloud_installation(destination_folder)
 
 
+def installation_folder() -> str:
+    return os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))
+
+
 if __name__ == '__main__':
-    location = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))
-    install_gcloud(location)
+    install_gcloud(installation_folder())

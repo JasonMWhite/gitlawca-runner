@@ -13,6 +13,8 @@ LOG = logging.getLogger('gitlawca')
 def datastore_service():
     LOG.info("Starting gcloud datastore emulator")
     system = install.get_platform()
+    if not install.detect_gcloud(system):
+        os.environ['PATH'] += install.installation_folder()
     assert install.detect_gcloud(system)
     with psutil.Popen(['gcloud', 'beta', 'emulators', 'datastore', 'start', '--no-store-on-disk'],
                       stderr=subprocess.PIPE) as proc:
