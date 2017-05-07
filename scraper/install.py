@@ -59,6 +59,7 @@ def get_distribution_url(system: SystemPlatform) -> str:
 
 
 def detect_gcloud(system: SystemPlatform) -> bool:
+    LOG.warning("PATH={}".format(os.environ['PATH']))
     if system in {SystemPlatform.LINUX_64, SystemPlatform.LINUX_32, SystemPlatform.MACOS_64, SystemPlatform.MACOS_32}:
         return subprocess.run(['which', 'gcloud'], stdout=subprocess.PIPE).stdout != b''
     else:
