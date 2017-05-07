@@ -1,7 +1,9 @@
 import time
+import timeout
 from google.cloud import datastore  # pylint:disable=import-error
 
 
+@pytest.mark.timeout(10)
 def test_datastore_is_clean(datastore_client):
     key = datastore_client.key('Act')
 
@@ -25,6 +27,7 @@ def test_datastore_is_clean(datastore_client):
     assert dict(acts[0].items()) == {'id': 1, 'value': 'foo'}
 
 
+@pytest.mark.timeout(10)
 def test_datastore_is_still_clean(datastore_client):
     key = datastore_client.key('Act')
 
