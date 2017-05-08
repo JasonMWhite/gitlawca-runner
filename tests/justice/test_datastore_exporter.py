@@ -1,5 +1,5 @@
+import pytest
 import time
-import timeout
 from google.cloud import datastore  # pylint:disable=import-error
 
 
