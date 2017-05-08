@@ -17,34 +17,33 @@ def datastore_service():
         os.environ['PATH'] += os.path.pathsep + os.path.join(install.installation_folder(),
                                                              '.gcloud', 'google-cloud-sdk', 'bin')
     assert install.detect_gcloud(system)
-    with psutil.Popen(['gcloud', 'beta', 'emulators', 'datastore', 'start', '--no-store-on-disk'],
-                      stderr=subprocess.PIPE) as proc:
-        try:
-            while True:
-                inline = proc.stderr.readline().decode('utf-8').strip()
-                if 'export DATASTORE_EMULATOR_HOST=' in inline:
-                    break
+    proc = psutil.Popen(['gcloud', 'beta', 'emulators', 'datastore', 'start', '--no-store-on-disk'],
+                        stderr=subprocess.PIPE)
+    try:
+        while True:
+            inline = proc.stderr.readline().decode('utf-8').strip()
+            if 'export DATASTORE_EMULATOR_HOST=' in inline:
+                break
 
-            _, address = inline.split('=')
-            os.environ['DATASTORE_EMULATOR_HOST'] = address
-            os.environ['DATASTORE_PROJECT_ID'] = 'gitlawca'
+        _, address = inline.split('=')
+        os.environ['DATASTORE_EMULATOR_HOST'] = address
+        os.environ['DATASTORE_PROJECT_ID'] = 'gitlawca'
 
-            yield google_datastore.Client('gitlawca')
+        yield google_datastore.Client('gitlawca')
 
-            children = proc.children()
-            while children:
-                if children[0].name() == 'java':
-                    break
-                children = children[0].children()
-            if children:
-                children[0].send_signal(subprocess.signal.SIGINT)
-                LOG.info("Terminated gcloud datastore emulator")
-            else:
-                LOG.error("Could not find gcloud datastore emulator process to terminate")
-        except subprocess.TimeoutExpired:
-            LOG.error("timeout expired!")
-            proc.kill()
-
+        children = proc.children()
+        while children:
+            if children[0].name() == 'java':
+                break
+            children = children[0].children()
+        if children:
+            children[0].send_signal(subprocess.signal.SIGINT)
+            LOG.info("Terminated gcloud datastore emulator")
+        else:
+            LOG.error("Could not find gcloud datastore emulator process to terminate")
+    except subprocess.TimeoutExpired:
+        LOG.error("timeout expired!")
+        proc.kill()
 
 
 @pytest.fixture
