@@ -11,7 +11,7 @@ LOG = logging.getLogger('gitlawca')
 
 
 @pytest.fixture(scope='session')
-def datastore_service(tmpdir: 'py.path.local'):
+def datastore_service():
     LOG.info("Starting gcloud datastore emulator from {}".format(install.installation_folder()))
     system = install.get_platform()
     if not install.detect_gcloud(system):
