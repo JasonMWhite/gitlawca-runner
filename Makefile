@@ -6,7 +6,6 @@ setup:
 setup_ci:
 	pip install -e .
 	pip install -r requirements/ci.txt
-	python scraper/install.py
 
 ci: test lint typing
 	@echo "CI complete"
