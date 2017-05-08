@@ -24,7 +24,7 @@ class DataStoreExporter(exporters.BaseItemExporter):
     def __store_raw_in_storage(self, item: ActItem) -> str:
         path = 'acts/raw/{}'.format(item['code'])
         blob = self.__bucket.blob(path)
-        blob.upload_from_string(item['body'])
+        blob.upload_from_string(item['body'][0:200])
         return path
 
     def __store_act_in_datastore(self, item: ActItem) -> datastore.Entity:

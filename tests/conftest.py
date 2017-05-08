@@ -2,6 +2,7 @@ import logging
 import os
 import subprocess
 import psutil
+import py  # pylint:disable=unused-import
 import pytest
 from google.cloud import datastore as google_datastore  # pylint:disable=import-error
 from scraper import install
@@ -10,8 +11,8 @@ LOG = logging.getLogger('gitlawca')
 
 
 @pytest.fixture(scope='session')
-def datastore_service():
-    LOG.info("Starting gcloud datastore emulator")
+def datastore_service(tmpdir: 'py.path.local'):
+    LOG.info("Starting gcloud datastore emulator from {}".format(install.installation_folder()))
     system = install.get_platform()
     if not install.detect_gcloud(system):
         os.environ['PATH'] += os.path.pathsep + os.path.join(install.installation_folder(),

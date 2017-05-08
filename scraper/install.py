@@ -115,4 +115,5 @@ def installation_folder() -> str:
 
 
 if __name__ == '__main__':
+    LOG.warning("Installing gcloud to {}".format(installation_folder()))
     install_gcloud(installation_folder())
