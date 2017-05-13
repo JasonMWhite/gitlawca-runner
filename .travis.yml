@@ -1,5 +1,20 @@
 language: python
 python:
-  - "3.6"
+- '3.6'
 install: make setup_ci
+before_script:
+- wget https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-154.0.1-linux-x86_64.tar.gz
+  -O /tmp/gcloud.tar.gz
+- tar -xf /tmp/gcloud.tar.gz
+- "./google-cloud-sdk/install.sh --additional-components beta cloud-datastore-emulator
+  --quiet --path-update true"
+- export PATH=$PATH:$PWD/google-cloud-sdk/bin/
+- gcloud config set project gitlawca
+- export DATASTORE_EMULATOR_HOST=localhost:8081
+- export DATASTORE_PROJECT_ID=gitlawca
+- tar -xzf credentials.tar.gz
+- export GOOGLE_APPLICATION_CREDENTIALS=$PWD/client-secret.json
 script: make ci
+before_install:
+- openssl aes-256-cbc -K $encrypted_362acc80d114_key -iv $encrypted_362acc80d114_iv
+  -in credentials.tar.gz.enc -out credentials.tar.gz -d

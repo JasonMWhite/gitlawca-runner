@@ -1,6 +1,6 @@
 import typing
 from google.cloud import datastore  # pylint:disable=import-error
-from google.cloud import storage  # pylint:disable=import-error
+from scraper import storage
 from scrapy import exporters
 from scrapy import signals
 from justice.justice.items import ActItem
@@ -8,10 +8,10 @@ from justice.justice.items import ActItem
 
 class DataStoreExporter(exporters.BaseItemExporter):
 
-    def __init__(self, ds: datastore.Client, st: storage.Client, **kwargs) -> None:
+    def __init__(self, ds: datastore.Client, st: storage.Storage, **kwargs) -> None:
         super().__init__(**kwargs)
         self.__datastore = ds
-        self.__bucket = st.get_bucket('gitlawca.appspot.com')
+        self.__bucket = st
         self.export_empty_fields = True
 
     def __act_in_datastore(self, item: ActItem) -> typing.Optional[datastore.Entity]:
@@ -23,8 +23,8 @@ class DataStoreExporter(exporters.BaseItemExporter):
 
     def __store_raw_in_storage(self, item: ActItem) -> str:
         path = 'acts/raw/{}'.format(item['code'])
-        blob = self.__bucket.blob(path)
-        blob.upload_from_string(item['body'][0:200])
+        blob = self.__bucket.get_blob(path)
+        blob.upload_from_string(item['body'])
         return path
 
     def __store_act_in_datastore(self, item: ActItem) -> datastore.Entity:
@@ -48,7 +48,6 @@ class DataStoreExporter(exporters.BaseItemExporter):
             act_entity = self.__store_act_in_datastore(item)
             act_entity['raw_blob'] = self.__store_raw_in_storage(item)
             self.__datastore.put(act_entity)
-
         return item
 
 
@@ -66,7 +65,7 @@ class JusticePipeline(object):
 
     def spider_opened(self, spider):  # pylint:disable=unused-argument
         dstore = datastore.Client('gitlawca')
-        stor = storage.Client('gitlawca')
+        stor = storage.get_storage()
 
         self.exporter = DataStoreExporter(dstore, stor)
         self.exporter.start_exporting()

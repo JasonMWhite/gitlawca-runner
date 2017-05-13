@@ -2,11 +2,11 @@ import logging
 import platform
 import enum
 import os
-import requests
 import shutil
 import subprocess
 import sys
 from urllib import parse
+import requests
 
 
 LOG = logging.getLogger('gitlawca')
@@ -50,7 +50,7 @@ def get_platform() -> SystemPlatform:
         system = SystemPlatform.WIN_64 if is_64_bit else SystemPlatform.WIN_32
     else:
         raise UnsupportedSystemError()
-    LOG.warning("Platform detected: {}".format(system.name))
+    LOG.warning('Platform detected: %s', system.name)
     return system
 
 
@@ -59,7 +59,6 @@ def get_distribution_url(system: SystemPlatform) -> str:
 
 
 def detect_gcloud(system: SystemPlatform) -> bool:
-    LOG.warning("PATH={}".format(os.environ['PATH']))
     if system in {SystemPlatform.LINUX_64, SystemPlatform.LINUX_32, SystemPlatform.MACOS_64, SystemPlatform.MACOS_32}:
         return subprocess.run(['which', 'gcloud'], stdout=subprocess.PIPE).stdout != b''
     else:
@@ -81,14 +80,14 @@ def download_gcloud(root_folder: str, system: SystemPlatform) -> str:
 
     destination_file = os.path.join(gcloud_path, local_filename)
 
-    LOG.warning("Downloading gcloud package from {} to local path {}".format(local_filename, destination_file))
+    LOG.warning('Downloading gcloud package from %s to local path %s', local_filename, destination_file)
     response = requests.get(url, stream=True)
     with open(destination_file, 'wb') as f:
         shutil.copyfileobj(response.raw, f)
 
     destination_folder = os.path.dirname(destination_file)
     shutil.unpack_archive(destination_file, extract_dir=destination_folder)
-    LOG.warning("Unpacked gcloud package into {}".format(destination_folder))
+    LOG.warning('Unpacked gcloud package into %s', destination_folder)
     return destination_folder
 
 
@@ -97,15 +96,15 @@ def run_gcloud_installation(base_path: str) -> None:
     LOG.warning('Installing gcloud SDK')
     subprocess.run([path, '--additional-components', 'beta', 'cloud-datastore-emulator', '--quiet'])
     LOG.warning('To add gcloud to your bash path and add autocompletion, source these files:')
-    LOG.warning("- source '{}/google-cloud-sdk/path.bash.inc'".format(base_path))
-    LOG.warning("- source '{}/google-cloud-sdk/completion.bash.inc'".format(base_path))
+    LOG.warning("- source '%s/google-cloud-sdk/path.bash.inc'", base_path)
+    LOG.warning("- source '%s/google-cloud-sdk/completion.bash.inc'", base_path)
     LOG.warning('Installed gcloud SDK')
 
 
 def install_gcloud(root_folder: str) -> None:
     system = get_platform()
     if not detect_gcloud(system):
-        LOG.warning("gcloud installation not detected. Installing...")
+        LOG.warning('gcloud installation not detected. Installing...')
         destination_folder = download_gcloud(root_folder, system)
         run_gcloud_installation(destination_folder)
 
@@ -115,5 +114,5 @@ def installation_folder() -> str:
 
 
 if __name__ == '__main__':
-    LOG.warning("Installing gcloud to {}".format(installation_folder()))
+    LOG.warning('Installing gcloud to %s', installation_folder())
     install_gcloud(installation_folder())

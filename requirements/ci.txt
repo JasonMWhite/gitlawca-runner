@@ -3,4 +3,3 @@
 pytest==3.0.6
 pylint==1.6.5
 mypy==0.471
-pytest-timeout==1.2.0

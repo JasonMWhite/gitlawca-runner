@@ -97,3 +97,8 @@ pip-selfcheck.json
 share/
 
 .gcloud/
+
+# travis gcloud credentials
+api_key.py
+client-secret.json
+credentials.tar.gz

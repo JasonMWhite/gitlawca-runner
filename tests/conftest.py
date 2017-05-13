@@ -12,14 +12,11 @@ LOG = logging.getLogger('gitlawca')
 
 @pytest.fixture(scope='session')
 def datastore_service():
-    LOG.info("Starting gcloud datastore emulator from {}".format(install.installation_folder()))
     system = install.get_platform()
-    if not install.detect_gcloud(system):
-        os.environ['PATH'] += os.path.pathsep + os.path.join(install.installation_folder(),
-                                                             '.gcloud', 'google-cloud-sdk', 'bin')
+    os.environ['CLOUDSDK_CORE_PROJECT'] = 'gitlawca'
     assert install.detect_gcloud(system)
-    proc = psutil.Popen(['gcloud', 'beta', 'emulators', 'datastore', 'start', '--no-store-on-disk'],
-                        stderr=subprocess.PIPE)
+    proc = psutil.Popen(['gcloud', 'beta', 'emulators', 'datastore', 'start',
+                         '--no-store-on-disk', '--consistency=1.0'], stderr=subprocess.PIPE)
     try:
         while True:
             inline = proc.stderr.readline().decode('utf-8').strip()
@@ -30,6 +27,7 @@ def datastore_service():
         os.environ['DATASTORE_EMULATOR_HOST'] = address
         os.environ['DATASTORE_PROJECT_ID'] = 'gitlawca'
 
+        LOG.warning('Starting datastore emulated client at %s', address)
         yield google_datastore.Client('gitlawca')
 
         children = proc.children()
