@@ -47,15 +47,29 @@ class ActsSpider(scrapy.Spider):
     @classmethod
     def _parse_act_versions(cls, response):
         pattern = re.compile('From (\\d{4}-\\d{2}-\\d{2}) to (\\d{4}-\\d{2}-\\d{2})')
+        results = []
         for link in response.xpath('//main[@property="mainContentOfPage"]/ul//a'):
             url = link.xpath('@href').extract_first()
             text = link.xpath('text()').extract_first()
             parsed_text = re.match(pattern, text)
 
-            meta = response.meta.copy()
-            meta['start'] = parsed_text.group(1)
-            meta['end'] = parsed_text.group(2)
+            result = {
+                'url': url,
+                'start': parsed_text.group(1),
+                'end': parsed_text.group(2),
+            }
+            results.append(result)
 
+        first_result = True
+        for result in sorted(results, key=lambda r: r['start'], reverse=True):
+            url = result['url']
+            meta = response.meta.copy()
+            meta['start'] = result['start']
+            if first_result:
+                meta['end'] = ''
+                first_result = False
+            else:
+                meta['end'] = result['end']
             yield scrapy.Request(url=response.urljoin(url), callback=cls._parse_act_fulltext, meta=meta)
 
     @staticmethod
