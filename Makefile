@@ -20,4 +20,4 @@ test:
 
 typing:
 	@echo "Running mypy"
-	@mypy tests justice scraper pylint_custom --ignore-missing-imports
+	@mypy tests scraper pylint_custom --ignore-missing-imports --strict-optional
