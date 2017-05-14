@@ -53,21 +53,24 @@ class DataStoreExporter(exporters.BaseItemExporter):
 
 class JusticePipeline(object):
 
-    def __init__(self):
-        self.exporter = None  # type: typing.Optional[DataStoreExporter]
+    DATASTORE_PROJECT_KEY = 'DATASTORE_PROJECT_ID'
+
+    def __init__(self, exporter: DataStoreExporter) -> None:
+        self.exporter = exporter
 
     @classmethod
     def from_crawler(cls, crawler):
-        pipeline = cls()
+        project = crawler.settings.get(cls.DATASTORE_PROJECT_KEY)
+        client = datastore.Client(project)
+        stor = storage.get_storage()
+        exporter = DataStoreExporter(client, stor)
+
+        pipeline = cls(exporter)
         crawler.signals.connect(pipeline.spider_opened, signals.spider_opened)
         crawler.signals.connect(pipeline.spider_closed, signals.spider_closed)
         return pipeline
 
     def spider_opened(self, spider):  # pylint:disable=unused-argument
-        dstore = datastore.Client('gitlawca')
-        stor = storage.get_storage()
-
-        self.exporter = DataStoreExporter(dstore, stor)
         self.exporter.start_exporting()
 
     def spider_closed(self, spider):  # pylint:disable=unused-argument
