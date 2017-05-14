@@ -22,7 +22,7 @@ def output(tmpdir: 'py.path.local') -> 'py.path.local':
         'FEED_URI': 'file://' + str(feed_url),
         'FEED_FORMAT': 'json',
         'FEED_EXPORT_FIELDS': ['code', 'title', 'start', 'end'],
-        'LOG_LEVEL': 'WARNING'
+        'LOG_LEVEL': 'WARNING',
     })
     crawler = CrawlerProcess(settings)
     crawler.crawl(acts.ActsSpider, start_urls=start_urls)
@@ -32,7 +32,6 @@ def output(tmpdir: 'py.path.local') -> 'py.path.local':
     return feed_url
 
 
-@pytest.mark.usefixtures('datastore_client')
 def test_output(output: 'py.path.local'):
     with output.open('r') as f:
         result = json.loads(f.read())

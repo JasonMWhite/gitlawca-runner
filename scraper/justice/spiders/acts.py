@@ -8,12 +8,8 @@ class ActsSpider(scrapy.Spider):
 
     start_urls = ['http://laws-lois.justice.gc.ca/eng/acts/']
 
-    custom_settings = {
-        'ITEM_PIPELINES': {
-            'scraper.justice.pipelines.JusticePipeline': 100
-        },
-        'LOG_LEVEL': 'WARNING',
-    }
+    def __init__(self, **kwargs):
+        super().__init__(self.name, **kwargs)
 
     def parse(self, _):
         pass
