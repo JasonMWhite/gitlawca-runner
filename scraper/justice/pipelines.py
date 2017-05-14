@@ -1,9 +1,9 @@
 import typing
 from google.cloud import datastore  # pylint:disable=import-error
-from scraper import storage
 from scrapy import exporters
 from scrapy import signals
-from justice.justice.items import ActItem
+from scraper import storage
+from scraper.justice.items import ActItem
 
 
 class DataStoreExporter(exporters.BaseItemExporter):

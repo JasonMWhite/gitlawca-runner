@@ -5,7 +5,7 @@ import py  # pylint:disable=unused-import
 import pytest
 from scrapy.crawler import CrawlerProcess
 from scrapy.settings import Settings
-from justice.justice.spiders import acts
+from scraper.justice.spiders import acts
 
 
 LOG = logging.getLogger('gitlawca')
