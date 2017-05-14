@@ -1,3 +1,4 @@
+import re
 import scrapy
 from scraper.justice import items
 
@@ -35,19 +36,35 @@ class ActsSpider(scrapy.Spider):
                 'title': link.xpath('text()').extract_first().strip(),
                 'code': url.split('/')[0].split('.html')[0]
             }
-            yield scrapy.Request(url=response.urljoin(url), callback=cls._parse_act, meta=metadata)
+            yield scrapy.Request(url=response.urljoin(url), callback=cls._parse_act_main_page, meta=metadata)
 
     @classmethod
-    def _parse_act(cls, response):
-        for link in response.xpath('//div[@id="printAll"]/ul/li/a[text()="HTML"]'):
+    def _parse_act_main_page(cls, response):
+        for link in response.xpath('//p[@id="assentedDate"]/a/@href'):
+            url = link.extract()
+            yield scrapy.Request(url=response.urljoin(url), callback=cls._parse_act_versions, meta=response.meta)
+
+    @classmethod
+    def _parse_act_versions(cls, response):
+        pattern = re.compile('From (\\d{4}-\\d{2}-\\d{2}) to (\\d{4}-\\d{2}-\\d{2})')
+        for link in response.xpath('//main[@property="mainContentOfPage"]/ul//a'):
             url = link.xpath('@href').extract_first()
-            yield scrapy.Request(url=response.urljoin(url), callback=cls._parse_act_fulltext, meta=response.meta)
+            text = link.xpath('text()').extract_first()
+            parsed_text = re.match(pattern, text)
+
+            meta = response.meta.copy()
+            meta['start'] = parsed_text.group(1)
+            meta['end'] = parsed_text.group(2)
+
+            yield scrapy.Request(url=response.urljoin(url), callback=cls._parse_act_fulltext, meta=meta)
 
     @staticmethod
     def _parse_act_fulltext(response):
-        for doc in response.xpath('//div[@id="docCont"]'):
+        for doc in response.xpath('//div[@id="wb-cont"]'):
             yield items.ActItem(
                 body=doc.extract(),
                 title=response.meta['title'],
                 code=response.meta['code'],
+                start=response.meta['start'],
+                end=response.meta['end'],
             )
