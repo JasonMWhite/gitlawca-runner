@@ -10,6 +10,7 @@ from scraper.justice.spiders import acts
 
 LOG = logging.getLogger('gitlawca')
 
+
 @pytest.fixture
 def output(tmpdir: 'py.path.local') -> 'py.path.local':
     test_home = os.path.join(os.path.dirname(__file__), 'fixtures/acts_home.html')
@@ -30,6 +31,7 @@ def output(tmpdir: 'py.path.local') -> 'py.path.local':
 
     return feed_url
 
+
 @pytest.mark.usefixtures('datastore_client')
 def test_output(output: 'py.path.local'):
     with output.open('r') as f:
@@ -37,10 +39,10 @@ def test_output(output: 'py.path.local'):
     assert sorted(result, key=lambda r: (r['code'], r['start'])) == [
         {'code': 'A-1', 'title': 'Access to Information Act', 'start': '2015-07-09', 'end': '2015-07-29'},
         {'code': 'A-1', 'title': 'Access to Information Act', 'start': '2015-07-30', 'end': '2016-04-04'},
-        {'code': 'A-1', 'title': 'Access to Information Act', 'start': '2016-04-05', 'end': '2017-04-25'},
+        {'code': 'A-1', 'title': 'Access to Information Act', 'start': '2016-04-05', 'end': ''},
         {'code': 'A-1.5', 'title': 'Administrative Tribunals Support Service of Canada Act', 'start': '2014-06-19',
          'end': '2014-10-31'},
         {'code': 'A-1.5', 'title': 'Administrative Tribunals Support Service of Canada Act', 'start': '2014-11-01',
-         'end': '2017-04-25'},
-        {'code': 'B-1.01', 'title': 'Bank Act', 'start': '2017-04-01', 'end': '2017-04-25'},
+         'end': ''},
+        {'code': 'B-1.01', 'title': 'Bank Act', 'start': '2017-04-01', 'end': ''},
     ]
