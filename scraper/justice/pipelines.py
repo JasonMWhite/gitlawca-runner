@@ -30,15 +30,15 @@ class DataStoreExporter(exporters.BaseItemExporter):
 
     def __store_act_in_datastore(self, item: ActItem) -> datastore.Entity:
         key = self.__datastore.key('Act')
-        act = datastore.Entity(key, exclude_from_indexes=('body',))
+        task = datastore.Entity(key, exclude_from_indexes=('body',))
 
-        act.update({
+        task.update({
             'title': item['title'],
             'code': item['code'],
             'start': item['start'],
             'end': item['end'],
         })
-        return act
+        return task
 
     def export_item(self, item: ActItem) -> ActItem:
         act_entity = self.__act_in_datastore(item)
