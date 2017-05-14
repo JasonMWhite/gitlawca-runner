@@ -12,7 +12,7 @@ ci: test lint typing
 
 lint:
 	@echo "Running pylint"
-	@pylint --rcfile=pylintrc tests justice scraper pylint_custom
+	@pylint --rcfile=pylintrc tests scraper pylint_custom
 
 test:
 	@echo "Running pytest"
