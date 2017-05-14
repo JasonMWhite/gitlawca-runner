@@ -1,5 +1,5 @@
 import scrapy
-from justice.justice import items
+from scraper.justice import items
 
 
 class ActsSpider(scrapy.Spider):
@@ -9,7 +9,7 @@ class ActsSpider(scrapy.Spider):
 
     custom_settings = {
         'ITEM_PIPELINES': {
-            'justice.justice.pipelines.JusticePipeline': 100
+            'scraper.justice.pipelines.JusticePipeline': 100
         },
         'LOG_LEVEL': 'WARNING',
     }
