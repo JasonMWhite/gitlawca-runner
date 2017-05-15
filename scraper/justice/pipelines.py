@@ -34,6 +34,8 @@ class DataStoreExporter(exporters.BaseItemExporter):
         act.update({
             'title': item['title'],
             'code': item['code'],
+            'start': item['start'],
+            'end': item['end'],
         })
         return act
 
