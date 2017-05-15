@@ -17,6 +17,7 @@ class DataStoreExporter(exporters.BaseItemExporter):
     def __act_in_datastore(self, item: ActItem) -> typing.Optional[datastore.Entity]:
         query = self.__datastore.query(kind='Act')
         query.add_filter('code', '=', item['code'])
+        query.add_filter('start', '=', item['start'])
         acts = list(query.fetch())
         if acts:
             return acts[0]
