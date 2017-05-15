@@ -26,11 +26,6 @@ def test_datastore_is_clean(datastore_client):
 
 
 @pytest.fixture
-def stor() -> storage.Storage:
-    return storage.get_storage()
-
-
-@pytest.fixture
 def exporter(datastore_client: datastore.Client, stor) -> DataStoreExporter:
     return DataStoreExporter(datastore_client, stor)
 
@@ -62,6 +57,8 @@ def test_store_item_in_datastore(datastore_client: datastore.Client,
         'code': 'A-1',
         'title': 'Access to Information',
         'body': 'Text of Act',
+        'start': '2016-01-01',
+        'end': '2016-02-01',
     })
     output = exporter.export_item(item)
     assert output == item
@@ -74,6 +71,8 @@ def test_store_item_in_datastore(datastore_client: datastore.Client,
         'code': 'A-1',
         'title': 'Access to Information',
         'raw_blob': 'acts/raw/A-1',
+        'start': '2016-01-01',
+        'end': '2016-02-01',
     }]
     assert [dict(x) for x in items] == expected
 
@@ -87,6 +86,8 @@ def test_store_item_saves_missing_body(datastore_client: datastore.Client,
         'code': 'A-1',
         'title': 'Access to Information',
         'body': 'Text of Act',
+        'start': '2016-01-01',
+        'end': '2016-02-01',
     })
 
     key = datastore_client.key('Act')
@@ -95,6 +96,8 @@ def test_store_item_saves_missing_body(datastore_client: datastore.Client,
         'code': item['code'],
         'title': item['title'],
         'raw_blob': '',
+        'start': item['start'],
+        'end': item['end'],
     })
     datastore_client.put(act)
     assert not stor.get_blob('acts/raw/A-1').exists()
@@ -103,6 +106,7 @@ def test_store_item_saves_missing_body(datastore_client: datastore.Client,
 
     query = datastore_client.query(kind='Act')
     query.add_filter('code', '=', 'A-1')
+    query.add_filter('start', '=', '2016-01-01')
     output = list(query.fetch())
 
     assert len(output) == 1
@@ -117,6 +121,8 @@ def test_exporter_doesnt_overwrite(datastore_client: datastore.Client,
         'code': 'A-1',
         'title': 'Foo',
         'body': 'Bar',
+        'start': '2016-01-01',
+        'end': '2016-02-01',
     })
     exporter.export_item(item1)
 
@@ -130,6 +136,8 @@ def test_exporter_doesnt_overwrite(datastore_client: datastore.Client,
         'code': 'A-1',
         'title': 'Access to Information',
         'body': 'Text of Act',
+        'start': '2016-01-01',
+        'end': '2016-03-01',
     })
     exporter.export_item(item2)
     output = list(query.fetch())

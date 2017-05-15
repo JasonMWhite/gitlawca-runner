@@ -6,6 +6,7 @@ import py  # pylint:disable=unused-import
 import pytest
 from google.cloud import datastore as google_datastore  # pylint:disable=import-error
 from scraper import install
+from scraper import storage
 
 LOG = logging.getLogger('gitlawca')
 
@@ -54,3 +55,9 @@ def datastore_client(datastore_service):
     query.keys_only()
     for row in query.fetch():
         datastore_service.delete(row.key)
+
+
+@pytest.fixture
+def stor(tmpdir: 'py.path.local') -> storage.Storage:
+    os.environ['MOCK_STORAGE'] = str(tmpdir.join('gitlawca'))
+    return storage.get_storage()

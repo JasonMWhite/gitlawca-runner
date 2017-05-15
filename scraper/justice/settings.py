@@ -11,8 +11,8 @@
 
 BOT_NAME = 'justice'
 
-SPIDER_MODULES = ['justice.spiders']
-NEWSPIDER_MODULE = 'justice.spiders'
+SPIDER_MODULES = ['scraper.justice.spiders']
+NEWSPIDER_MODULE = 'scraper.justice.spiders'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent

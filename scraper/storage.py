@@ -140,7 +140,10 @@ def get_storage() -> Storage:
         stor = storage.Client('gitlawca')
         return GoogleStorage(stor.get_bucket('gitlawca.appspot.com'))
     else:
-        temp_path = os.path.join('/tmp/gitlawca', str(random.randint(1, sys.maxsize)))
+        if 'MOCK_STORAGE' in os.environ:
+            temp_path = os.environ['MOCK_STORAGE']
+        else:
+            temp_path = os.path.join('/tmp/gitlawca', str(random.randint(1, sys.maxsize)))
         if not os.path.exists(temp_path):
             os.makedirs(temp_path)
         return MockStorage(temp_path)
