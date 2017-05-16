@@ -1,4 +1,5 @@
 import re
+import typing
 import scrapy
 from scraper.justice import items
 
@@ -8,24 +9,24 @@ class ActsSpider(scrapy.Spider):
 
     start_urls = ['http://laws-lois.justice.gc.ca/eng/acts/']
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(self.name, **kwargs)
 
-    def parse(self, _):
+    def parse(self, _) -> None:
         pass
 
-    def start_requests(self):
+    def start_requests(self) -> typing.Iterable[scrapy.Request]:
         for url in self.start_urls:
             yield scrapy.Request(url=url, callback=self._parse_main_page)
 
     @classmethod
-    def _parse_main_page(cls, response):
+    def _parse_main_page(cls, response: scrapy.http.Response) -> typing.Iterable[scrapy.Request]:
         for link in response.xpath('//div[@id="alphaList"]//a[@class="btn btn-default"]'):
             url = link.xpath('@href').extract_first()
             yield scrapy.Request(url=response.urljoin(url), callback=cls._parse_letter)
 
     @classmethod
-    def _parse_letter(cls, response):
+    def _parse_letter(cls, response: scrapy.http.Response) -> typing.Iterable[scrapy.Request]:
         for link in response.xpath('//div[@class="contentBlock"]/ul/li/span[@class="objTitle"]/a'):
             url = link.xpath('@href').extract_first()
             metadata = {
@@ -35,13 +36,13 @@ class ActsSpider(scrapy.Spider):
             yield scrapy.Request(url=response.urljoin(url), callback=cls._parse_act_main_page, meta=metadata)
 
     @classmethod
-    def _parse_act_main_page(cls, response):
+    def _parse_act_main_page(cls, response: scrapy.http.Response) -> typing.Iterable[scrapy.Request]:
         for link in response.xpath('//p[@id="assentedDate"]/a/@href'):
             url = link.extract()
             yield scrapy.Request(url=response.urljoin(url), callback=cls._parse_act_versions, meta=response.meta)
 
     @classmethod
-    def _parse_act_versions(cls, response):
+    def _parse_act_versions(cls, response: scrapy.http.Response) -> typing.Iterable[scrapy.Request]:
         pattern = re.compile('From (\\d{4}-\\d{2}-\\d{2}) to (\\d{4}-\\d{2}-\\d{2})')
         results = []
         for link in response.xpath('//main[@property="mainContentOfPage"]/ul//a'):
@@ -69,7 +70,7 @@ class ActsSpider(scrapy.Spider):
             yield scrapy.Request(url=response.urljoin(url), callback=cls._parse_act_fulltext, meta=meta)
 
     @staticmethod
-    def _parse_act_fulltext(response):
+    def _parse_act_fulltext(response: scrapy.http.Response) -> typing.Iterable[items.ActItem]:
         for doc in response.xpath('//div[@id="wb-cont"]'):
             yield items.ActItem(
                 body=doc.extract(),
