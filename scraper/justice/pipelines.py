@@ -23,7 +23,7 @@ class DataStoreExporter(exporters.BaseItemExporter):
             return acts[0]
 
     def __store_raw_in_storage(self, item: ActItem) -> str:
-        path = 'acts/raw/{}'.format(item['code'])
+        path = 'acts/raw/{}/{}'.format(item['code'], item['start'])
         blob = self.__bucket.get_blob(path)
         blob.upload_from_string(item['body'])
         return path

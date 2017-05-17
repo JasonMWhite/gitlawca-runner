@@ -67,16 +67,54 @@ def test_store_item_in_datastore(datastore_client: datastore.Client,
     query.add_filter('code', '=', 'A-1')
     items = list(query.fetch())
 
-    expected = [{
+    expected = {
         'code': 'A-1',
         'title': 'Access to Information',
         'raw_blob': 'acts/raw/A-1',
         'start': '2016-01-01',
         'end': '2016-02-01',
-    }]
-    assert [dict(x) for x in items] == expected
+    }
+    assert [dict(x) for x in items] == [expected]
 
-    assert stor.get_blob('acts/raw/A-1').download_to_string() == 'Text of Act'
+    assert stor.get_blob(expected['raw_blob']).download_to_string() == 'Text of Act'
+
+
+def test_store_multiple_versions(datastore_client: datastore.Client,
+                                       exporter: DataStoreExporter,
+                                       stor: storage.Storage) -> None:
+    item0 = ActItem({
+        'code': 'A-1',
+        'title': 'Access to Information',
+        'body': 'Text of Act',
+        'start': '2016-01-01',
+        'end': '2016-02-01',
+    })
+    exporter.export_item(item0)
+
+    item1 = ActItem({
+        'code': 'A-1',
+        'title': 'Access to Information',
+        'body': 'Revised Text of Act',
+        'start': '2016-02-02',
+        'end': '',
+    })
+    exporter.export_item(item1)
+
+    query = datastore_client.query(kind='Act')
+    query.add_filter('code', '=', 'A-1')
+    items = sorted(list(query.fetch()), key=lambda item: (item['code'], item['start']))
+
+    assert items[0]['code'] == 'A-1'
+    assert items[1]['code'] == 'A-1'
+
+    assert items[0]['start'] == '2016-01-01'
+    assert items[0]['end'] == '2016-02-01'
+
+    assert items[1]['start'] == '2016-02-02'
+    assert items[1]['end'] == ''
+
+    assert stor.get_blob(items[0]['raw_blob']).download_to_string() == item0['body']
+    assert stor.get_blob(items[1]['raw_blob']).download_to_string() == item1['body']
 
 
 def test_store_item_saves_missing_body(datastore_client: datastore.Client,
