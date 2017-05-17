@@ -1,5 +1,5 @@
 import os
-from google.cloud import datastore
+from google.cloud import datastore  # pylint:disable=import-error
 import pytest
 from scrapy import crawler
 from scrapy.settings import Settings
