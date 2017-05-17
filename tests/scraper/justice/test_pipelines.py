@@ -80,8 +80,8 @@ def test_store_item_in_datastore(datastore_client: datastore.Client,
 
 
 def test_store_multiple_versions(datastore_client: datastore.Client,
-                                       exporter: DataStoreExporter,
-                                       stor: storage.Storage) -> None:
+                                 exporter: DataStoreExporter,
+                                 stor: storage.Storage) -> None:
     item0 = ActItem({
         'code': 'A-1',
         'title': 'Access to Information',
