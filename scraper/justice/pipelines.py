@@ -1,4 +1,3 @@
-import typing
 from google.cloud import datastore  # pylint:disable=import-error
 from scrapy import exporters
 from scrapy import signals
@@ -14,13 +13,31 @@ class DataStoreExporter(exporters.BaseItemExporter):
         self.__bucket = st
         self.export_empty_fields = True
 
-    def __act_in_datastore(self, item: ActItem) -> typing.Optional[datastore.Entity]:
-        query = self.__datastore.query(kind='Act')
-        query.add_filter('code', '=', item['code'])
-        query.add_filter('start', '=', item['start'])
-        acts = list(query.fetch())
-        if acts:
-            return acts[0]
+    def __act_in_datastore(self, item: ActItem) -> datastore.Entity:
+        act_key = self.__datastore.key('Act', item['code'])
+        act = self.__datastore.get(act_key)
+
+        if not act:
+            act = datastore.Entity(act_key)
+            act.update({
+                'code': item['code'],
+                'title': item['title'],
+            })
+            self.__datastore.put(act)
+        return act
+
+    def __version_in_datastore(self, item: ActItem, act: datastore.Entity) -> datastore.Entity:
+        version_key = self.__datastore.key('ActVersion', item['start'], parent=act.key)
+        version = self.__datastore.get(version_key)
+
+        if not version:
+            version = datastore.Entity(version_key)
+            version.update({
+                'start': item['start'],
+                'end': item['end'],
+            })
+            self.__datastore.put(version)
+        return version
 
     def __store_raw_in_storage(self, item: ActItem) -> str:
         path = 'acts/raw/{}/{}'.format(item['code'], item['start'])
@@ -28,29 +45,13 @@ class DataStoreExporter(exporters.BaseItemExporter):
         blob.upload_from_string(item['body'])
         return path
 
-    def __store_act_in_datastore(self, item: ActItem) -> datastore.Entity:
-        key = self.__datastore.key('Act')
-        act = datastore.Entity(key, exclude_from_indexes=('body',))
-
-        act.update({
-            'title': item['title'],
-            'code': item['code'],
-            'start': item['start'],
-            'end': item['end'],
-        })
-        return act
-
     def export_item(self, item: ActItem) -> ActItem:
         act_entity = self.__act_in_datastore(item)
+        version_entity = self.__version_in_datastore(item, act_entity)
 
-        if act_entity:
-            if not act_entity['raw_blob']:
-                act_entity['raw_blob'] = self.__store_raw_in_storage(item)
-                self.__datastore.put(act_entity)
-        else:
-            act_entity = self.__store_act_in_datastore(item)
-            act_entity['raw_blob'] = self.__store_raw_in_storage(item)
-            self.__datastore.put(act_entity)
+        if not version_entity.get('raw_blob'):
+            version_entity['raw_blob'] = self.__store_raw_in_storage(item)
+            self.__datastore.put(version_entity)
         return item
 
 
