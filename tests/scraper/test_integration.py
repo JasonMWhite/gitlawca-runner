@@ -8,6 +8,21 @@ from scraper import storage
 from scraper.justice.spiders import acts
 
 
+def prepopulate_one_version(datastore_client: datastore.Client,
+                            stor: storage.Storage):
+    act_key = datastore_client.key('Act', 'A-1')
+    act = datastore.Entity(key=act_key)
+    act.update({'code': 'A-1', 'title': 'Access to Information Act'})
+    datastore_client.put(act)
+
+    version_key = datastore_client.key('ActVersion', '2015-07-09', parent=act_key)
+    version = datastore.Entity(key=version_key)
+    version.update({'start': '2015-07-09', 'end': '2015-07-29', 'raw_blob': 'acts/raw/A-1/2015-07-09'})
+    datastore_client.put(version)
+
+    stor.get_blob(version['raw_blob']).upload_from_string('Prepopulated')
+
+
 def crawler_settings() -> Settings:
     from scraper.justice import settings
     settings_ = Settings()
@@ -36,6 +51,7 @@ def _crawl_and_materialize(datastore_client: datastore.Client, stor: storage.Sto
     global VERSIONS  # pylint: disable=global-statement
     global STORAGE  # pylint: disable=global-statement
 
+    prepopulate_one_version(datastore_client, stor)
     crawl()
     ACTS = sorted(list(datastore_client.query(kind='Act').fetch()), key=lambda x: x['code'])
     VERSIONS = sorted(list(datastore_client.query(kind='ActVersion').fetch()),
@@ -82,8 +98,9 @@ def test_versions(materialized_versions: typing.List[datastore.Entity]) -> None:
 
     assert STORAGE
     blob_texts = [STORAGE.get_blob(version['raw_blob']).download_to_string() for version in materialized_versions]
-    assert all([len(blob_text) > 100 for blob_text in blob_texts])
-    assert '<div class="info">Version of document from 2015-07-09 to 2015-07-29:</div>' in blob_texts[0]
+
+    assert blob_texts[0] == 'Prepopulated'
+    assert all([len(blob_text) > 100 for blob_text in blob_texts[1:]])
     assert '<div class="info">Version of document from 2015-07-30 to 2016-04-04:</div>' in blob_texts[1]
     assert '<div class="info">Version of document from 2016-04-05 to ' in blob_texts[2]
     assert '<div class="info">Version of document from 2014-06-19 to 2014-10-31:</div>' in blob_texts[3]
