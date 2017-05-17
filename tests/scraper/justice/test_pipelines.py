@@ -70,7 +70,7 @@ def test_store_item_in_datastore(datastore_client: datastore.Client,
     expected = {
         'code': 'A-1',
         'title': 'Access to Information',
-        'raw_blob': 'acts/raw/A-1',
+        'raw_blob': 'acts/raw/A-1/2016-01-01',
         'start': '2016-01-01',
         'end': '2016-02-01',
     }
@@ -148,8 +148,8 @@ def test_store_item_saves_missing_body(datastore_client: datastore.Client,
     output = list(query.fetch())
 
     assert len(output) == 1
-    assert output[0]['raw_blob'] == 'acts/raw/A-1'
-    assert stor.get_blob('acts/raw/A-1').download_to_string() == 'Text of Act'
+    assert output[0]['raw_blob'] == 'acts/raw/A-1/2016-01-01'
+    assert stor.get_blob(output[0]['raw_blob']).download_to_string() == 'Text of Act'
 
 
 def test_exporter_doesnt_overwrite(datastore_client: datastore.Client,
@@ -168,7 +168,7 @@ def test_exporter_doesnt_overwrite(datastore_client: datastore.Client,
     query.add_filter('code', '=', 'A-1')
     output = list(query.fetch())
     assert len(output) == 1
-    assert stor.get_blob('acts/raw/A-1').download_to_string() == 'Bar'
+    assert stor.get_blob(output[0]['raw_blob']).download_to_string() == 'Bar'
 
     item2 = ActItem({
         'code': 'A-1',
@@ -181,4 +181,4 @@ def test_exporter_doesnt_overwrite(datastore_client: datastore.Client,
     output = list(query.fetch())
     assert len(output) == 1
     assert output[0]['title'] == 'Foo'
-    assert stor.get_blob('acts/raw/A-1').download_to_string() == 'Bar'
+    assert stor.get_blob(output[0]['raw_blob']).download_to_string() == 'Bar'
