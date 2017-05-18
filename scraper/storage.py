@@ -132,7 +132,7 @@ class GoogleStorage(Storage):
         self.__bucket = bucket
 
     def get_blob(self, blob_name: str):
-        return GoogleBlob(blob_name, self.__bucket.get_blob(blob_name))
+        return GoogleBlob(blob_name, self.__bucket.blob(blob_name))
 
 
 def get_storage() -> Storage:
