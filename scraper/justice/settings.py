@@ -90,3 +90,5 @@ ITEM_PIPELINES = {
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 DATASTORE_PROJECT_ID = 'gitlawca'
+
+LOG_LEVEL = 'INFO'
