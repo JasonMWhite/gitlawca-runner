@@ -19,30 +19,26 @@ class ActsSpider(scrapy.Spider):
         for url in self.start_urls:
             yield scrapy.Request(url=url, callback=self._parse_main_page)
 
-    @classmethod
-    def _parse_main_page(cls, response: scrapy.http.Response) -> typing.Iterable[scrapy.Request]:
+    def _parse_main_page(self, response: scrapy.http.Response) -> typing.Iterable[scrapy.Request]:
         for link in response.xpath('//div[@id="alphaList"]//a[@class="btn btn-default"]'):
             url = link.xpath('@href').extract_first()
-            yield scrapy.Request(url=response.urljoin(url), callback=cls._parse_letter)
+            yield scrapy.Request(url=response.urljoin(url), callback=self._parse_letter)
 
-    @classmethod
-    def _parse_letter(cls, response: scrapy.http.Response) -> typing.Iterable[scrapy.Request]:
+    def _parse_letter(self, response: scrapy.http.Response) -> typing.Iterable[scrapy.Request]:
         for link in response.xpath('//div[@class="contentBlock"]/ul/li/span[@class="objTitle"]/a'):
             url = link.xpath('@href').extract_first()
             metadata = {
                 'title': link.xpath('text()').extract_first().strip(),
                 'code': url.split('/')[0].split('.html')[0]
             }
-            yield scrapy.Request(url=response.urljoin(url), callback=cls._parse_act_main_page, meta=metadata)
+            yield scrapy.Request(url=response.urljoin(url), callback=self._parse_act_main_page, meta=metadata)
 
-    @classmethod
-    def _parse_act_main_page(cls, response: scrapy.http.Response) -> typing.Iterable[scrapy.Request]:
+    def _parse_act_main_page(self, response: scrapy.http.Response) -> typing.Iterable[scrapy.Request]:
         for link in response.xpath('//p[@id="assentedDate"]/a/@href'):
             url = link.extract()
-            yield scrapy.Request(url=response.urljoin(url), callback=cls._parse_act_versions, meta=response.meta)
+            yield scrapy.Request(url=response.urljoin(url), callback=self._parse_act_versions, meta=response.meta)
 
-    @classmethod
-    def _parse_act_versions(cls, response: scrapy.http.Response) -> typing.Iterable[scrapy.Request]:
+    def _parse_act_versions(self, response: scrapy.http.Response) -> typing.Iterable[scrapy.Request]:
         pattern = re.compile('From (\\d{4}-\\d{2}-\\d{2}) to (\\d{4}-\\d{2}-\\d{2})')
         results = []
         for link in response.xpath('//main[@property="mainContentOfPage"]/ul//a'):
@@ -67,11 +63,11 @@ class ActsSpider(scrapy.Spider):
                 first_result = False
             else:
                 meta['end'] = result['end']
-            yield scrapy.Request(url=response.urljoin(url), callback=cls._parse_act_fulltext, meta=meta)
+            yield scrapy.Request(url=response.urljoin(url), callback=self._parse_act_fulltext, meta=meta)
 
-    @staticmethod
-    def _parse_act_fulltext(response: scrapy.http.Response) -> typing.Iterable[items.ActItem]:
+    def _parse_act_fulltext(self, response: scrapy.http.Response) -> typing.Iterable[items.ActItem]:
         for doc in response.xpath('//div[@id="wb-cont"]'):
+            self.logger.info('Scraped item: Code: {}, Start: {}', response.meta['code'], response.meta['start'])
             yield items.ActItem(
                 body=doc.extract(),
                 title=response.meta['title'],
