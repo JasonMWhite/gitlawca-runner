@@ -59,5 +59,6 @@ def datastore_client(datastore_service):
 
 @pytest.fixture
 def stor(tmpdir: 'py.path.local') -> storage.Storage:
+    os.environ['GITLAWCA'] = 'test'
     os.environ['MOCK_STORAGE'] = str(tmpdir.join('gitlawca'))
     return storage.get_storage()

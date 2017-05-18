@@ -136,7 +136,7 @@ class GoogleStorage(Storage):
 
 
 def get_storage() -> Storage:
-    if os.environ.get('GITLAWCA') == 'production':
+    if os.environ.get('GITLAWCA') != 'test':
         stor = storage.Client('gitlawca')
         return GoogleStorage(stor.get_bucket('gitlawca.appspot.com'))
     else:
