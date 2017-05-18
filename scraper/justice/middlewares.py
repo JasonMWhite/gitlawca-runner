@@ -29,7 +29,7 @@ class JusticeSpiderMiddleware:
             version_key = self.__datastore_client.key('Act', response.meta['code'],
                                                       'ActVersion', response.meta['start'])
             version = self.__datastore_client.get(version_key)
-            if version and version['end'] == response.meta['end']:
+            if version and version['end'] == response.meta['end'] and version.get('raw_blob'):
                 raise IgnoreRequest()
         return None
 

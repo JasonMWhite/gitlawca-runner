@@ -1,3 +1,4 @@
+import logging
 import re
 import typing
 import scrapy
@@ -10,6 +11,8 @@ class ActsSpider(scrapy.Spider):
     start_urls = ['http://laws-lois.justice.gc.ca/eng/acts/']
 
     def __init__(self, **kwargs) -> None:
+        core_logger = logging.getLogger('scrapy.core.scraper')
+        core_logger.setLevel('CRITICAL')
         super().__init__(self.name, **kwargs)
 
     def parse(self, _) -> None:
