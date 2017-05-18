@@ -67,7 +67,7 @@ class ActsSpider(scrapy.Spider):
 
     def _parse_act_fulltext(self, response: scrapy.http.Response) -> typing.Iterable[items.ActItem]:
         for doc in response.xpath('//div[@id="wb-cont"]'):
-            self.logger.info('Scraped item: Code: {}, Start: {}', response.meta['code'], response.meta['start'])
+            self.logger.info('Scraped item: Code: %s, Start: %s', response.meta['code'], response.meta['start'])
             yield items.ActItem(
                 body=doc.extract(),
                 title=response.meta['title'],
