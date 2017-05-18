@@ -28,6 +28,7 @@ def crawler_settings() -> Settings:
     settings_ = Settings()
     settings_.setmodule(settings)
     settings_.set('ROBOTSTXT_OBEY', False)
+    settings_.set('DOWNLOAD_DELAY', 0)
     return settings_
 
 
