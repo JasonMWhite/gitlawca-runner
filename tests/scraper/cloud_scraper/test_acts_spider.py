@@ -1,5 +1,7 @@
 import datetime
+import typing  # pylint: disable=unused-import
 from google.cloud import pubsub
+from google.cloud.pubsub import message  # pylint: disable=unused-import
 from scraper.cloud_scraper import acts_scraper
 from scraper.cloud_scraper import acts_spider
 
@@ -48,15 +50,15 @@ def test_listen(pubsub_client: pubsub.Client) -> None:
 
     sub = topic.subscription('acts_scraper')
 
-    results = []
+    results = []  # type: typing.List[message.Message]
     while True:
         new_results = sub.pull(return_immediately=True)
         if new_results:
-            results.extend(new_results)
+            results.extend([msg for _, msg in new_results])
         else:
             break
 
     assert len(results) == 2
-    assert all([msg[1].data.decode('utf-8') == 'http://foo.bar' for msg in results])
-    assert results[0][1].attributes['foo'] == 'bar'
-    assert results[1][1].attributes['baz'] == '1'
+    assert all([msg.data.decode('utf-8') == 'http://foo.bar' for msg in results])
+    assert results[0].attributes['foo'] == 'bar'
+    assert results[1].attributes['baz'] == '1'
