@@ -74,7 +74,7 @@ def pubsub_service(tmpdir_factory) -> pubsub.Client:
     port = words[-1]
 
     os.environ['PUBSUB_EMULATOR_HOST'] = 'localhost:{}'.format(port)
-    LOG.warning('Starting pubsub emulated client on localhost:{}'.format(port))
+    LOG.warning('Starting pubsub emulated client on localhost:%s', port)
     yield pubsub.Client('gitlawca')
 
     terminate_subprocess(proc, "gcloud pubsub emulator")
