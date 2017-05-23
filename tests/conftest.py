@@ -70,6 +70,11 @@ def pubsub_service(tmpdir_factory) -> pubsub.Client:
         inline = proc.stderr.readline().decode('utf-8').strip()
         if 'Server started, listening on' in inline:
             break
+    words = inline.split(' ')
+    port = words[-1]
+
+    os.environ['PUBSUB_EMULATOR_HOST'] = 'localhost:{}'.format(port)
+    LOG.warning('Starting pubsub emulated client on localhost:{}'.format(port))
     yield pubsub.Client('gitlawca')
 
     terminate_subprocess(proc, "gcloud pubsub emulator")
