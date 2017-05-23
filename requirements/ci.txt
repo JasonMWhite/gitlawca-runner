@@ -1,5 +1,5 @@
 -r production.txt
 
 pytest==3.0.6
-pylint==1.6.5
-mypy==0.471
+pylint==1.7.1
+mypy==0.511
