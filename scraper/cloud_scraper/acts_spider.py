@@ -29,11 +29,12 @@ class ActsSpider:
         for seed in self.SEEDS:
             self.__topic.publish(seed.encode('utf-8'), timestamp=datetime.datetime.now(), type='main_page')
 
-    def follow_breadcrumbs(self, breadcrumbs: typing.Sequence[acts_scraper.Breadcrumb]) -> None:
-        for breadcrumb in breadcrumbs:
-            self.__topic.publish(breadcrumb.url.encode('utf-8'), **breadcrumb.attrs)
+    def _store_breadcrumbs(self, breadcrumbs: typing.Sequence[acts_scraper.Breadcrumb]) -> None:
+        with self.__topic.batch() as batch:
+            for breadcrumb in breadcrumbs:
+                batch.publish(breadcrumb.url.encode('utf-8'), **breadcrumb.attrs)
 
-    def store_items(self, items: typing.Sequence[acts_scraper.ActItem]) -> None:
+    def _store_items(self, items: typing.Sequence[acts_scraper.ActItem]) -> None:
         pass
 
     def listen(self):
@@ -42,7 +43,11 @@ class ActsSpider:
             input_breadcrumb = acts_scraper.Breadcrumb(url=msg.data.decode('utf-8'), attrs=msg.attributes)
             breadcrumbs, items = self.TYPE_DECODER[msg_type](input_breadcrumb)
 
-            self.follow_breadcrumbs(breadcrumbs)
-            self.store_items(items)
+            self._store_breadcrumbs(breadcrumbs)
+            self._store_items(items)
 
             self.__sub.acknowledge([ack_id])
+
+    def keep_listening(self):
+        while True:
+            self.listen()
