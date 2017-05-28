@@ -2,8 +2,7 @@ import abc
 import datetime
 import typing
 from urllib import parse
-from lxml.etree import Element
-from lxml.etree import HTML  # type: ignore  # pylint: disable=no-name-in-module
+from lxml import html  # type: ignore
 import requests
 from requests_file import FileAdapter
 
@@ -21,7 +20,7 @@ class ActItem(typing.NamedTuple):
     body: str
 
 
-ScraperInput = typing.Tuple[Element, str, typing.Mapping[str, str]]
+ScraperInput = typing.Tuple[html.HtmlElement, str, typing.Dict[str, str]]  # pylint: disable=invalid-name
 ScraperResult = typing.Tuple[typing.Sequence[Breadcrumb], typing.Sequence[ActItem]]  # pylint:disable=invalid-name
 
 
@@ -47,7 +46,7 @@ class ActsScraper(Scraper):
         sess.mount('file://', FileAdapter())
 
         response = sess.get(input_breadcrumb.url)
-        tree = HTML(response.content)
+        tree = html.fromstring(response.content)
 
         attrs = input_breadcrumb.attrs.copy()
         attrs.update({

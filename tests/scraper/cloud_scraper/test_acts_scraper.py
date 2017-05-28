@@ -1,4 +1,3 @@
-import datetime
 import os
 from scraper.cloud_scraper import acts_scraper
 
