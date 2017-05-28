@@ -1,3 +1,4 @@
+import abc
 import datetime
 import typing
 from urllib import parse
@@ -24,7 +25,14 @@ ScraperInput = typing.Tuple[Element, str, typing.Mapping[str, str]]
 ScraperResult = typing.Tuple[typing.Sequence[Breadcrumb], typing.Sequence[ActItem]]  # pylint:disable=invalid-name
 
 
-class ActsScraper:
+class Scraper(metaclass=abc.ABCMeta):
+
+    @abc.abstractmethod
+    def scrape(self, input_breadcrumb: Breadcrumb) -> ScraperResult:
+        pass
+
+
+class ActsScraper(Scraper):
 
     def __init__(self):
         self.__functions = {
