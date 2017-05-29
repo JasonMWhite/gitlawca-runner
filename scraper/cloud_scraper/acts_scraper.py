@@ -1,5 +1,6 @@
 import abc
 import datetime
+import re
 import typing
 from urllib import parse
 from lxml import html  # type: ignore
@@ -38,6 +39,7 @@ class ActsScraper(Scraper):
             'main_page': self.parse_main_page,
             'letter_page': self.parse_letter_page,
             'act_main': self.parse_act_main,
+            'act_versions': self.parse_act_versions,
         }
 
     @staticmethod
@@ -49,9 +51,7 @@ class ActsScraper(Scraper):
         tree = html.fromstring(response.content)
 
         attrs = input_breadcrumb.attrs.copy()
-        attrs.update({
-            'timestamp': datetime.datetime.now().isoformat(),
-        })
+        attrs['timestamp'] = datetime.datetime.now().isoformat()
 
         return tree, response.url, attrs
 
@@ -64,7 +64,7 @@ class ActsScraper(Scraper):
             assert isinstance(response_uri, str)
             next_uri = parse.urljoin(response_uri, link.attrib['href'])
             attrs = attrs.copy()
-            attrs.update({'type': 'letter_page'})
+            attrs['type'] = 'letter_page'
             result = Breadcrumb(url=next_uri, attrs=attrs)
             results.append(result)
         return results, []
@@ -95,8 +95,30 @@ class ActsScraper(Scraper):
         for link in tree.xpath('//p[@id="assentedDate"]/a'):
             next_url = parse.urljoin(response_uri, link.attrib['href'])
             attrs = attrs.copy()
-            attrs.update({'type': 'act_version'})
+            attrs['type'] = 'act_versions'
             result = Breadcrumb(url=next_url, attrs=attrs)
+            results.append(result)
+        return results, []
+
+    @classmethod
+    def parse_act_versions(cls, scraper_input: ScraperInput) -> ScraperResult:
+        tree, response_uri, attrs = scraper_input
+
+        results = []  # type: typing.List[Breadcrumb]
+        pattern = re.compile('From (\\d{4}-\\d{2}-\\d{2}) to (\\d{4}-\\d{2}-\\d{2})')
+
+        for i, link in enumerate(tree.xpath('//main[@property="mainContentOfPage"]/ul//a')):
+            next_url = parse.urljoin(response_uri, link.attrib['href'])
+            text = link.text
+            parsed_text = re.match(pattern, text)
+
+            link_attrs = attrs.copy()
+            link_attrs.update({
+                'start': parsed_text.group(1),
+                'end': parsed_text.group(2) if i > 0 else '',
+                'type': 'act_version'
+            })
+            result = Breadcrumb(url=next_url, attrs=link_attrs)
             results.append(result)
         return results, []
 
