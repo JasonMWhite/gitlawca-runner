@@ -1,7 +1,8 @@
 from google.cloud import datastore
+
+from scraper import acts_scraper
+from scraper import acts_storage
 from scraper import storage
-from scraper.cloud_scraper import acts_scraper
-from scraper.cloud_scraper import acts_storage
 
 
 def test_datastore_is_clean(datastore_client: datastore.Client) -> None:

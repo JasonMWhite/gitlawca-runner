@@ -1,12 +1,13 @@
 import typing
-from google.cloud import pubsub
+
 from google.cloud import datastore
+from google.cloud import pubsub
 from google.cloud.pubsub import message  # pylint: disable=unused-import
+
+from scraper import acts_scraper
+from scraper import acts_storage
 from scraper import logger
 from scraper import storage
-from scraper.cloud_scraper import acts_scraper
-from scraper.cloud_scraper import acts_storage
-
 
 LOG = logger.LOG
 

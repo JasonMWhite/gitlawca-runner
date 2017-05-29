@@ -1,12 +1,14 @@
 import datetime
 import typing  # pylint: disable=unused-import
+
 from google.cloud import datastore
 from google.cloud import pubsub
 from google.cloud.pubsub import message  # pylint: disable=unused-import
+
+from scraper import acts_scraper
+from scraper import acts_storage
+from scraper import spider
 from scraper import storage
-from scraper.cloud_scraper import acts_scraper
-from scraper.cloud_scraper import acts_spider
-from scraper.cloud_scraper import acts_storage
 
 
 class MockScraper(acts_scraper.Scraper):
@@ -39,7 +41,7 @@ def test_listen_publishes_to_pubsub(pubsub_client: pubsub.Client,
                                     datastore_client: datastore.Client,
                                     stor: storage.Storage) -> None:
     acts_stor = acts_storage.ActsStorage(datastore_client, stor)
-    spider = acts_spider.ActsSpider(pubsub_client, MockScraper(), acts_stor)
+    spider_ = spider.ActsSpider(pubsub_client, MockScraper(), acts_stor)
 
     input_attrs = {
         'code': 'A-1',
@@ -53,7 +55,7 @@ def test_listen_publishes_to_pubsub(pubsub_client: pubsub.Client,
     topic = pubsub_client.topic('acts_requests')
     topic.publish('http://foo.bar'.encode('utf-8'), **input_attrs)
 
-    spider.listen()
+    spider_.listen()
 
     sub = topic.subscription('acts_scraper')
 
@@ -75,7 +77,7 @@ def test_listen_stores_results(pubsub_client: pubsub.Client,
                                datastore_client: datastore.Client,
                                stor: storage.Storage) -> None:
     acts_stor = acts_storage.ActsStorage(datastore_client, stor)
-    spider = acts_spider.ActsSpider(pubsub_client, MockScraper(), acts_stor)
+    spider_ = spider.ActsSpider(pubsub_client, MockScraper(), acts_stor)
 
     input_attrs = {
         'code': 'A-1',
@@ -89,7 +91,7 @@ def test_listen_stores_results(pubsub_client: pubsub.Client,
     topic = pubsub_client.topic('acts_requests')
     topic.publish('http://foo.bar'.encode('utf-8'), **input_attrs)
 
-    spider.listen()
+    spider_.listen()
 
     act_key = datastore_client.key('Act', 'A-1')
     act = datastore_client.get(act_key)

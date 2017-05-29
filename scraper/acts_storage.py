@@ -1,6 +1,7 @@
 from google.cloud import datastore
+
+from scraper import acts_scraper
 from scraper import storage
-from scraper.cloud_scraper import acts_scraper
 
 
 class ActsStorage:

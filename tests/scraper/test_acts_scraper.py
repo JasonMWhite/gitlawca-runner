@@ -1,5 +1,6 @@
 import os
-from scraper.cloud_scraper import acts_scraper
+
+from scraper import acts_scraper
 
 
 def get_fixture(*rel_path: str) -> str:
