@@ -3,11 +3,11 @@ from scraper.cloud_scraper import acts_scraper
 
 
 def get_fixture(*rel_path: str) -> str:
-    return os.path.join(os.path.dirname(__file__), '..', *rel_path)
+    return os.path.join(os.path.dirname(__file__), '..', 'justice', 'fixtures', *rel_path)
 
 
 def test_parse_main_page() -> None:
-    fixture_filename = get_fixture('justice', 'fixtures', 'acts_home.html')
+    fixture_filename = get_fixture('acts_home.html')
     input_breadcrumb = acts_scraper.Breadcrumb(url='file://' + fixture_filename, attrs={'type': 'main_page'})
 
     scraper = acts_scraper.ActsScraper()
@@ -21,7 +21,7 @@ def test_parse_main_page() -> None:
 
 
 def test_parse_letter_page() -> None:
-    fixture_filename = get_fixture('justice', 'fixtures', 'A.html')
+    fixture_filename = get_fixture('A.html')
     input_breadcrumb = acts_scraper.Breadcrumb(url='file://' + fixture_filename, attrs={'type': 'letter_page'})
 
     scraper = acts_scraper.ActsScraper()
@@ -43,7 +43,7 @@ def test_parse_letter_page() -> None:
 
 
 def test_parse_act_main() -> None:
-    fixture_filename = get_fixture('justice', 'fixtures', 'A-1/index.html')
+    fixture_filename = get_fixture('A-1', 'index.html')
     attrs = {'code': 'A-1', 'title': 'Access to Information Act', 'type': 'act_main'}
     input_breadcrumb = acts_scraper.Breadcrumb(url='file://' + fixture_filename, attrs=attrs)
 
@@ -60,7 +60,7 @@ def test_parse_act_main() -> None:
 
 
 def test_parse_act_versions() -> None:
-    fixture_filename = get_fixture('justice', 'fixtures', 'A-1/PITIndex.html')
+    fixture_filename = get_fixture('A-1', 'PITIndex.html')
     attrs = {'code': 'A-1', 'title': 'Access to Information Act', 'type': 'act_versions'}
     input_breadcrumb = acts_scraper.Breadcrumb(url='file://' + fixture_filename, attrs=attrs)
 
@@ -75,10 +75,34 @@ def test_parse_act_versions() -> None:
     assert breadcrumbs[2].url.endswith('A-1/20160405/P1TT3xt3.html')
     assert all([crumb.attrs['code'] == 'A-1' for crumb in breadcrumbs])
     assert all([crumb.attrs['title'] == 'Access to Information Act' for crumb in breadcrumbs])
-    assert all([crumb.attrs['type'] == 'act_version' for crumb in breadcrumbs])
+    assert all([crumb.attrs['type'] == 'act_item' for crumb in breadcrumbs])
     assert [crumb.attrs['start'] for crumb in breadcrumbs] == [
         '2015-07-09', '2015-07-30', '2016-04-05'
     ]
     assert [crumb.attrs['end'] for crumb in breadcrumbs] == [
         '2015-07-29', '2016-04-04', ''
     ]
+
+
+def test_parse_act_item() -> None:
+    fixture_filename = get_fixture('A-1', '20150709', 'P1TT3xt3.html')
+    attrs = {
+        'code': 'A-1',
+        'title': 'Access to Information Act',
+        'type': 'act_item',
+        'start': '2015-07-09',
+        'end': '2015-07-29'
+    }
+    input_breadcrumb = acts_scraper.Breadcrumb(url='file://' + fixture_filename, attrs=attrs)
+
+    scraper = acts_scraper.ActsScraper()
+    breadcrumbs, items = scraper.scrape(input_breadcrumb)
+    assert breadcrumbs == []
+    assert len(items) == 1
+    item = items[0]
+
+    assert item.code == 'A-1'
+    assert item.title == 'Access to Information Act'
+    assert item.start == '2015-07-09'
+    assert item.end == '2015-07-29'
+    assert len(item.body) > 1000
