@@ -6,33 +6,34 @@ from scraper.cloud_scraper import acts_scraper
 from scraper.cloud_scraper import acts_spider
 
 
-def scraper_test_function(input_breadcrumb: acts_scraper.Breadcrumb) -> acts_scraper.ScraperResult:
-    output_attrs0 = dict(input_breadcrumb.attrs.items())
-    output_attrs0['foo'] = 'bar'
-    output_attrs1 = dict(input_breadcrumb.attrs.items())
-    output_attrs1['baz'] = '1'
+class MockScraper(acts_scraper.Scraper):
 
-    output_breadcrumbs = [
-        acts_scraper.Breadcrumb(url=input_breadcrumb.url, attrs=output_attrs0),
-        acts_scraper.Breadcrumb(url=input_breadcrumb.url, attrs=output_attrs1),
-    ]
+    def scrape(self, input_breadcrumb: acts_scraper.Breadcrumb) -> acts_scraper.ScraperResult:
+        output_attrs0 = dict(input_breadcrumb.attrs.items())
+        output_attrs0['foo'] = 'bar'
+        output_attrs1 = dict(input_breadcrumb.attrs.items())
+        output_attrs1['baz'] = '1'
 
-    output_items = [
-        acts_scraper.ActItem(
-            code=input_breadcrumb.attrs['code'],
-            title=input_breadcrumb.attrs['title'],
-            start=input_breadcrumb.attrs['start'],
-            end=input_breadcrumb.attrs['end'],
-            body=input_breadcrumb.attrs['body'],
-        )
-    ]
+        output_breadcrumbs = [
+            acts_scraper.Breadcrumb(url=input_breadcrumb.url, attrs=output_attrs0),
+            acts_scraper.Breadcrumb(url=input_breadcrumb.url, attrs=output_attrs1),
+        ]
 
-    return output_breadcrumbs, output_items
+        output_items = [
+            acts_scraper.ActItem(
+                code=input_breadcrumb.attrs['code'],
+                title=input_breadcrumb.attrs['title'],
+                start=input_breadcrumb.attrs['start'],
+                end=input_breadcrumb.attrs['end'],
+                body=input_breadcrumb.attrs['body'],
+            )
+        ]
+
+        return output_breadcrumbs, output_items
 
 
 def test_listen(pubsub_client: pubsub.Client) -> None:
-    spider = acts_spider.ActsSpider(pubsub_client)
-    spider.TYPE_DECODER['foo'] = scraper_test_function
+    spider = acts_spider.ActsSpider(pubsub_client, MockScraper())
 
     input_attrs = {
         'code': 'A-1',

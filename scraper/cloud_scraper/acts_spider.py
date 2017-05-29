@@ -9,11 +9,7 @@ class ActsSpider:
 
     SEEDS = ['http://laws-lois.justice.gc.ca/eng/acts/']
 
-    TYPE_DECODER = {
-        'main_page': acts_scraper.parse_main_page
-    }  # type: typing.Dict[str, typing.Callable[[acts_scraper.Breadcrumb], acts_scraper.ScraperResult]]
-
-    def __init__(self, pubsub_client: pubsub.Client) -> None:
+    def __init__(self, pubsub_client: pubsub.Client, scraper: acts_scraper.Scraper) -> None:
         self.__pubsub = pubsub_client
         topic = pubsub_client.topic('acts_requests')
         if not topic.exists():
@@ -24,6 +20,7 @@ class ActsSpider:
         if not sub.exists():
             sub.create()
         self.__sub = sub
+        self.__scraper = scraper
 
     def seed_topic(self):
         for seed in self.SEEDS:
@@ -39,9 +36,8 @@ class ActsSpider:
 
     def listen(self):
         for ack_id, msg in self.__sub.pull():  # type: str, message.Message
-            msg_type = msg.attributes['type']
             input_breadcrumb = acts_scraper.Breadcrumb(url=msg.data.decode('utf-8'), attrs=msg.attributes)
-            breadcrumbs, items = self.TYPE_DECODER[msg_type](input_breadcrumb)
+            breadcrumbs, items = self.__scraper.scrape(input_breadcrumb)
 
             self._store_breadcrumbs(breadcrumbs)
             self._store_items(items)
