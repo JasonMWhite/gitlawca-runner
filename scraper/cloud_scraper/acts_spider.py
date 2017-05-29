@@ -1,10 +1,15 @@
 import datetime
+import logging
 import typing
 from google.cloud import pubsub
+from google.cloud import datastore
 from google.cloud.pubsub import message  # pylint: disable=unused-import
+from scraper import storage
 from scraper.cloud_scraper import acts_scraper
 from scraper.cloud_scraper import acts_storage
 
+
+LOG = logging.getLogger('ActsScraper')
 
 class ActsSpider:
 
@@ -42,7 +47,9 @@ class ActsSpider:
 
     def listen(self):
         for ack_id, msg in self.__sub.pull():  # type: str, message.Message
-            input_breadcrumb = acts_scraper.Breadcrumb(url=msg.data.decode('utf-8'), attrs=msg.attributes)
+            url = msg.data.decode('utf-8')
+            LOG.warning('Following breadcrumb: %s', url)
+            input_breadcrumb = acts_scraper.Breadcrumb(url=url, attrs=dict(msg.attributes))
             breadcrumbs, items = self.__scraper.scrape(input_breadcrumb)
 
             self._store_breadcrumbs(breadcrumbs)
@@ -51,5 +58,22 @@ class ActsSpider:
             self.__sub.acknowledge([ack_id])
 
     def keep_listening(self):
+        LOG.warning('Starting Pub/Sub Listener')
         while True:
             self.listen()
+
+
+def get_spider() -> ActsSpider:
+    pubsub_client = pubsub.Client()
+    scraper = acts_scraper.ActsScraper()
+
+    datastore_client = datastore.Client()
+    stor = storage.get_storage()
+    acts_stor = acts_storage.ActsStorage(datastore_client, stor)
+
+    return ActsSpider(pubsub_client, scraper, acts_stor)
+
+
+if __name__ == '__main__':
+    SPIDER = get_spider()
+    SPIDER.keep_listening()
