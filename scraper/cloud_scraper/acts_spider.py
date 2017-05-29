@@ -1,19 +1,17 @@
-import datetime
-import logging
 import typing
 from google.cloud import pubsub
 from google.cloud import datastore
 from google.cloud.pubsub import message  # pylint: disable=unused-import
+from scraper import logger
 from scraper import storage
 from scraper.cloud_scraper import acts_scraper
 from scraper.cloud_scraper import acts_storage
 
 
-LOG = logging.getLogger('ActsScraper')
+LOG = logger.LOG
+
 
 class ActsSpider:
-
-    SEEDS = ['http://laws-lois.justice.gc.ca/eng/acts/']
 
     def __init__(self, pubsub_client: pubsub.Client,
                  scraper: acts_scraper.Scraper,
@@ -32,10 +30,6 @@ class ActsSpider:
         self.__scraper = scraper
         self.__storage = storage
 
-    def seed_topic(self):
-        for seed in self.SEEDS:
-            self.__topic.publish(seed.encode('utf-8'), timestamp=datetime.datetime.now(), type='main_page')
-
     def _store_breadcrumbs(self, breadcrumbs: typing.Sequence[acts_scraper.Breadcrumb]) -> None:
         with self.__topic.batch() as batch:
             for breadcrumb in breadcrumbs:
@@ -48,7 +42,7 @@ class ActsSpider:
     def listen(self):
         for ack_id, msg in self.__sub.pull():  # type: str, message.Message
             url = msg.data.decode('utf-8')
-            LOG.warning('Following breadcrumb: %s', url)
+            LOG.info('Following breadcrumb: %s', url)
             input_breadcrumb = acts_scraper.Breadcrumb(url=url, attrs=dict(msg.attributes))
             breadcrumbs, items = self.__scraper.scrape(input_breadcrumb)
 
@@ -58,7 +52,7 @@ class ActsSpider:
             self.__sub.acknowledge([ack_id])
 
     def keep_listening(self):
-        LOG.warning('Starting Pub/Sub Listener')
+        LOG.info('Starting Pub/Sub Listener')
         while True:
             self.listen()
 
