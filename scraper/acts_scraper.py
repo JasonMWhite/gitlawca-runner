@@ -3,6 +3,7 @@ import datetime
 import re
 import typing
 from urllib import parse
+import dateutil.parser
 from lxml import html  # type: ignore
 import requests
 from requests_file import FileAdapter
@@ -52,13 +53,18 @@ class ActsScraper(Scraper):
         tree = html.fromstring(response.content)
 
         attrs = input_breadcrumb.attrs.copy()
-        attrs['timestamp'] = datetime.datetime.now().isoformat()
+        if 'timestamp' not in attrs:
+            attrs['timestamp'] = datetime.datetime.now().isoformat()
 
         return tree, response.url, attrs
 
     @classmethod
     def parse_main_page(cls, scraper_input: ScraperInput) -> ScraperResult:
         tree, response_uri, attrs = scraper_input
+
+        if datetime.datetime.now() - dateutil.parser.parse(attrs['timestamp']) >= datetime.timedelta(days=1):
+            return [], []
+
         results = []  # type: typing.List[Breadcrumb]
 
         for link in tree.xpath('//div[@id="alphaList"]//a[@class="btn btn-default"]'):
@@ -73,6 +79,10 @@ class ActsScraper(Scraper):
     @classmethod
     def parse_letter_page(cls, scraper_input: ScraperInput) -> ScraperResult:
         tree, response_uri, attrs = scraper_input
+
+        if datetime.datetime.now() - dateutil.parser.parse(attrs['timestamp']) >= datetime.timedelta(days=1):
+            return [], []
+
         results = []  # type: typing.List[Breadcrumb]
 
         for link in tree.xpath('//div[@class="contentBlock"]/ul/li/span[@class="objTitle"]/a'):
@@ -91,6 +101,10 @@ class ActsScraper(Scraper):
     @classmethod
     def parse_act_main(cls, scraper_input: ScraperInput) -> ScraperResult:
         tree, response_uri, attrs = scraper_input
+
+        if datetime.datetime.now() - dateutil.parser.parse(attrs['timestamp']) >= datetime.timedelta(days=1):
+            return [], []
+
         results = []  # type: typing.List[Breadcrumb]
 
         for link in tree.xpath('//p[@id="assentedDate"]/a'):
@@ -104,6 +118,9 @@ class ActsScraper(Scraper):
     @classmethod
     def parse_act_versions(cls, scraper_input: ScraperInput) -> ScraperResult:
         tree, response_uri, attrs = scraper_input
+
+        if datetime.datetime.now() - dateutil.parser.parse(attrs['timestamp']) >= datetime.timedelta(days=1):
+            return [], []
 
         results = []  # type: typing.List[Breadcrumb]
         pattern = re.compile('From (\\d{4}-\\d{2}-\\d{2}) to (\\d{4}-\\d{2}-\\d{2})')
@@ -126,6 +143,9 @@ class ActsScraper(Scraper):
     @classmethod
     def parse_act_item(cls, scraper_input: ScraperInput) -> ScraperResult:
         tree, _, attrs = scraper_input
+
+        if datetime.datetime.now() - dateutil.parser.parse(attrs['timestamp']) >= datetime.timedelta(days=1):
+            return [], []
 
         items = []  # type: typing.List[ActItem]
         for content_node in tree.xpath('//div[@id="wb-cont"]'):

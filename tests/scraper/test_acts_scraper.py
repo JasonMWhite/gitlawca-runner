@@ -1,3 +1,4 @@
+import datetime
 import os
 
 from scraper import acts_scraper
@@ -16,9 +17,21 @@ def test_parse_main_page() -> None:
     assert items == []
     assert len(breadcrumbs) == 2
     assert all([crumb.attrs['type'] == 'letter_page' for crumb in breadcrumbs])
+    assert all([crumb.attrs['timestamp'] for crumb in breadcrumbs])
 
     destinations = sorted([crumb.url.split(os.sep)[-1] for crumb in breadcrumbs])
     assert destinations == ['A.html', 'B.html']
+
+
+def test_parse_main_page_skip_old() -> None:
+    fixture_filename = get_fixture('acts_home.html')
+    attrs = {'type': 'main_page', 'timestamp': datetime.datetime(2016, 1, 1).isoformat()}
+    input_breadcrumb = acts_scraper.Breadcrumb(url='file://' + fixture_filename, attrs=attrs)
+
+    scraper = acts_scraper.ActsScraper()
+    breadcrumbs, items = scraper.scrape(input_breadcrumb)
+    assert breadcrumbs == []
+    assert items == []
 
 
 def test_parse_letter_page() -> None:
@@ -43,6 +56,17 @@ def test_parse_letter_page() -> None:
     assert titles == ['Access to Information Act', 'Administrative Tribunals Support Service of Canada Act']
 
 
+def test_parse_letter_page_skip_old() -> None:
+    fixture_filename = get_fixture('A.html')
+    attrs = {'type': 'letter_page', 'timestamp': datetime.datetime(2016, 1, 1).isoformat()}
+    input_breadcrumb = acts_scraper.Breadcrumb(url='file://' + fixture_filename, attrs=attrs)
+
+    scraper = acts_scraper.ActsScraper()
+    breadcrumbs, items = scraper.scrape(input_breadcrumb)
+    assert breadcrumbs == []
+    assert items == []
+
+
 def test_parse_act_main() -> None:
     fixture_filename = get_fixture('A-1', 'index.html')
     attrs = {'code': 'A-1', 'title': 'Access to Information Act', 'type': 'act_main'}
@@ -58,6 +82,22 @@ def test_parse_act_main() -> None:
     assert breadcrumbs[0].attrs['title'] == 'Access to Information Act'
     assert breadcrumbs[0].attrs['type'] == 'act_versions'
     assert 'timestamp' in breadcrumbs[0].attrs
+
+
+def test_parse_act_main_skip_old() -> None:
+    fixture_filename = get_fixture('A-1', 'index.html')
+    attrs = {
+        'code': 'A-1',
+        'title': 'Access to Information Act',
+        'type': 'act_main',
+        'timestamp': datetime.datetime(2016, 1, 1).isoformat()
+    }
+    input_breadcrumb = acts_scraper.Breadcrumb(url='file://' + fixture_filename, attrs=attrs)
+
+    scraper = acts_scraper.ActsScraper()
+    breadcrumbs, items = scraper.scrape(input_breadcrumb)
+    assert breadcrumbs == []
+    assert items == []
 
 
 def test_parse_act_versions() -> None:
@@ -85,6 +125,22 @@ def test_parse_act_versions() -> None:
     ]
 
 
+def test_parse_act_versions_skip_old() -> None:
+    fixture_filename = get_fixture('A-1', 'PITIndex.html')
+    attrs = {
+        'code': 'A-1',
+        'title': 'Access to Information Act',
+        'type': 'act_versions',
+        'timestamp': datetime.datetime(2016, 1, 1).isoformat()
+    }
+    input_breadcrumb = acts_scraper.Breadcrumb(url='file://' + fixture_filename, attrs=attrs)
+
+    scraper = acts_scraper.ActsScraper()
+    breadcrumbs, items = scraper.scrape(input_breadcrumb)
+    assert breadcrumbs == []
+    assert items == []
+
+
 def test_parse_act_item() -> None:
     fixture_filename = get_fixture('A-1', '20150709', 'P1TT3xt3.html')
     attrs = {
@@ -108,3 +164,22 @@ def test_parse_act_item() -> None:
     assert item.end == '2015-07-29'
     assert len(item.body) > 1000
     assert isinstance(item.body, str)
+
+
+def test_parse_act_item_skip_old() -> None:
+    fixture_filename = get_fixture('A-1', '20150709', 'P1TT3xt3.html')
+    attrs = {
+        'code': 'A-1',
+        'title': 'Access to Information Act',
+        'type': 'act_item',
+        'start': '2015-07-09',
+        'end': '2015-07-29',
+        'timestamp': datetime.datetime(2016, 1, 1).isoformat()
+    }
+    input_breadcrumb = acts_scraper.Breadcrumb(url='file://' + fixture_filename, attrs=attrs)
+
+    scraper = acts_scraper.ActsScraper()
+    breadcrumbs, items = scraper.scrape(input_breadcrumb)
+
+    assert breadcrumbs == []
+    assert items == []
