@@ -40,6 +40,7 @@ class ActsScraper(Scraper):
             'letter_page': self.parse_letter_page,
             'act_main': self.parse_act_main,
             'act_versions': self.parse_act_versions,
+            'act_item': self.parse_act_item
         }
 
     @staticmethod
@@ -116,11 +117,27 @@ class ActsScraper(Scraper):
             link_attrs.update({
                 'start': parsed_text.group(1),
                 'end': parsed_text.group(2) if i > 0 else '',
-                'type': 'act_version'
+                'type': 'act_item'
             })
             result = Breadcrumb(url=next_url, attrs=link_attrs)
             results.append(result)
         return results, []
+
+    @classmethod
+    def parse_act_item(cls, scraper_input: ScraperInput) -> ScraperResult:
+        tree, _, attrs = scraper_input
+
+        items = []  # type: typing.List[ActItem]
+        for content_node in tree.xpath('//div[@id="wb-cont"]'):
+            item = ActItem(
+                code=attrs['code'],
+                title=attrs['title'],
+                start=attrs['start'],
+                end=attrs['end'],
+                body=html.tostring(content_node)
+            )
+            items.append(item)
+        return [], items
 
     def scrape(self, input_breadcrumb: Breadcrumb) -> ScraperResult:
         input_type = input_breadcrumb.attrs['type']
