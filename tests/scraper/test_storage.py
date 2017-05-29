@@ -76,7 +76,7 @@ def test_delete(mock_storage: storage.Storage):
 
 
 def test_get_storage_not_production():
-    assert os.environ.get('GITLAWCA') != 'production'
+    assert os.environ.get('GITLAWCA') == 'test'
     mock_storage = storage.get_storage()
     assert isinstance(mock_storage, storage.MockStorage)
 

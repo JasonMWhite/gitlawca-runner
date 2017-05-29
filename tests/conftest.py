@@ -102,3 +102,8 @@ def stor(tmpdir: 'py.path.local') -> storage.Storage:
     os.environ['GITLAWCA'] = 'test'
     os.environ['MOCK_STORAGE'] = str(tmpdir.join('gitlawca'))
     return storage.get_storage()
+
+
+@pytest.fixture(scope='session', autouse=True)
+def gitlaw_env() -> None:
+    os.environ['GITLAWCA'] = 'test'

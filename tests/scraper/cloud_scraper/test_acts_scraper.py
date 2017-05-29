@@ -3,7 +3,7 @@ from scraper.cloud_scraper import acts_scraper
 
 
 def get_fixture(*rel_path: str) -> str:
-    return os.path.join(os.path.dirname(__file__), '..', 'justice', 'fixtures', *rel_path)
+    return os.path.join(os.path.dirname(__file__), 'fixtures', *rel_path)
 
 
 def test_parse_main_page() -> None:
