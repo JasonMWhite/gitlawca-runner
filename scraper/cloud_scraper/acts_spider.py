@@ -3,13 +3,17 @@ import typing
 from google.cloud import pubsub
 from google.cloud.pubsub import message  # pylint: disable=unused-import
 from scraper.cloud_scraper import acts_scraper
+from scraper.cloud_scraper import acts_storage
 
 
 class ActsSpider:
 
     SEEDS = ['http://laws-lois.justice.gc.ca/eng/acts/']
 
-    def __init__(self, pubsub_client: pubsub.Client, scraper: acts_scraper.Scraper) -> None:
+    def __init__(self, pubsub_client: pubsub.Client,
+                 scraper: acts_scraper.Scraper,
+                 storage: acts_storage.ActsStorage) -> None:
+
         self.__pubsub = pubsub_client
         topic = pubsub_client.topic('acts_requests')
         if not topic.exists():
@@ -21,6 +25,7 @@ class ActsSpider:
             sub.create()
         self.__sub = sub
         self.__scraper = scraper
+        self.__storage = storage
 
     def seed_topic(self):
         for seed in self.SEEDS:
@@ -32,7 +37,8 @@ class ActsSpider:
                 batch.publish(breadcrumb.url.encode('utf-8'), **breadcrumb.attrs)
 
     def _store_items(self, items: typing.Sequence[acts_scraper.ActItem]) -> None:
-        pass
+        for item in items:
+            self.__storage.store(item)
 
     def listen(self):
         for ack_id, msg in self.__sub.pull():  # type: str, message.Message
