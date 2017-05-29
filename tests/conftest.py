@@ -1,4 +1,3 @@
-import logging
 import os
 import subprocess
 import psutil
@@ -7,9 +6,10 @@ import pytest
 from google.cloud import datastore as google_datastore  # pylint:disable=import-error
 from google.cloud import pubsub  # pylint:disable=import-error
 from scraper import install
+from scraper import logger
 from scraper import storage
 
-LOG = logging.getLogger('gitlawca')
+LOG = logger.LOG
 
 
 def terminate_subprocess(proc: psutil.Process, name: str):

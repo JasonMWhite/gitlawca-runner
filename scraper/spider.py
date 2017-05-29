@@ -40,8 +40,10 @@ class ActsSpider:
         for item in items:
             self.__storage.store(item)
 
-    def listen(self):
-        for ack_id, msg in self.__sub.pull():  # type: str, message.Message
+    def listen(self, wait: bool = True) -> bool:
+        message_received = False
+        for ack_id, msg in self.__sub.pull(return_immediately=not wait):  # type: str, message.Message
+            message_received = True
             url = msg.data.decode('utf-8')
             LOG.info('Following breadcrumb: %s', url)
             input_breadcrumb = acts_scraper.Breadcrumb(url=url, attrs=dict(msg.attributes))
@@ -51,6 +53,7 @@ class ActsSpider:
             self._store_items(items)
 
             self.__sub.acknowledge([ack_id])
+        return message_received
 
     def keep_listening(self):
         LOG.info('Starting Pub/Sub Listener')

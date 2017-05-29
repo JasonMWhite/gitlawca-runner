@@ -134,7 +134,7 @@ class ActsScraper(Scraper):
                 title=attrs['title'],
                 start=attrs['start'],
                 end=attrs['end'],
-                body=html.tostring(content_node)
+                body=html.tostring(content_node).decode('utf-8')
             )
             items.append(item)
         return [], items

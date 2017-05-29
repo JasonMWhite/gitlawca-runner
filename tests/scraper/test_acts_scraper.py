@@ -107,3 +107,4 @@ def test_parse_act_item() -> None:
     assert item.start == '2015-07-09'
     assert item.end == '2015-07-29'
     assert len(item.body) > 1000
+    assert isinstance(item.body, str)
