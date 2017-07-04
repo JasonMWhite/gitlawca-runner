@@ -13,7 +13,9 @@ def test_parse_main_page() -> None:
     input_breadcrumb = acts_scraper.Breadcrumb(url='file://' + fixture_filename, attrs={'type': 'main_page'})
 
     scraper = acts_scraper.ActsScraper()
-    breadcrumbs, items = scraper.scrape(input_breadcrumb)
+    result = scraper.scrape(input_breadcrumb)
+    assert result
+    breadcrumbs, items = result
     assert items == []
     assert len(breadcrumbs) == 2
     assert all([crumb.attrs['type'] == 'letter_page' for crumb in breadcrumbs])
@@ -29,7 +31,9 @@ def test_parse_main_page_skip_old() -> None:
     input_breadcrumb = acts_scraper.Breadcrumb(url='file://' + fixture_filename, attrs=attrs)
 
     scraper = acts_scraper.ActsScraper()
-    breadcrumbs, items = scraper.scrape(input_breadcrumb)
+    result = scraper.scrape(input_breadcrumb)
+    assert result
+    breadcrumbs, items = result
     assert breadcrumbs == []
     assert items == []
 
@@ -39,7 +43,9 @@ def test_parse_letter_page() -> None:
     input_breadcrumb = acts_scraper.Breadcrumb(url='file://' + fixture_filename, attrs={'type': 'letter_page'})
 
     scraper = acts_scraper.ActsScraper()
-    breadcrumbs, items = scraper.scrape(input_breadcrumb)
+    result = scraper.scrape(input_breadcrumb)
+    assert result
+    breadcrumbs, items = result
 
     assert items == []
     assert len(breadcrumbs) == 2
@@ -62,7 +68,9 @@ def test_parse_letter_page_skip_old() -> None:
     input_breadcrumb = acts_scraper.Breadcrumb(url='file://' + fixture_filename, attrs=attrs)
 
     scraper = acts_scraper.ActsScraper()
-    breadcrumbs, items = scraper.scrape(input_breadcrumb)
+    result = scraper.scrape(input_breadcrumb)
+    assert result
+    breadcrumbs, items = result
     assert breadcrumbs == []
     assert items == []
 
@@ -73,7 +81,9 @@ def test_parse_act_main() -> None:
     input_breadcrumb = acts_scraper.Breadcrumb(url='file://' + fixture_filename, attrs=attrs)
 
     scraper = acts_scraper.ActsScraper()
-    breadcrumbs, items = scraper.scrape(input_breadcrumb)
+    result = scraper.scrape(input_breadcrumb)
+    assert result
+    breadcrumbs, items = result
 
     assert items == []
     assert len(breadcrumbs) == 1
@@ -95,7 +105,9 @@ def test_parse_act_main_skip_old() -> None:
     input_breadcrumb = acts_scraper.Breadcrumb(url='file://' + fixture_filename, attrs=attrs)
 
     scraper = acts_scraper.ActsScraper()
-    breadcrumbs, items = scraper.scrape(input_breadcrumb)
+    result = scraper.scrape(input_breadcrumb)
+    assert result
+    breadcrumbs, items = result
     assert breadcrumbs == []
     assert items == []
 
@@ -106,7 +118,9 @@ def test_parse_act_versions() -> None:
     input_breadcrumb = acts_scraper.Breadcrumb(url='file://' + fixture_filename, attrs=attrs)
 
     scraper = acts_scraper.ActsScraper()
-    breadcrumbs, items = scraper.scrape(input_breadcrumb)
+    result = scraper.scrape(input_breadcrumb)
+    assert result
+    breadcrumbs, items = result
 
     assert items == []
     breadcrumbs = sorted(breadcrumbs, key=lambda b: b.url)
@@ -136,7 +150,9 @@ def test_parse_act_versions_skip_old() -> None:
     input_breadcrumb = acts_scraper.Breadcrumb(url='file://' + fixture_filename, attrs=attrs)
 
     scraper = acts_scraper.ActsScraper()
-    breadcrumbs, items = scraper.scrape(input_breadcrumb)
+    result = scraper.scrape(input_breadcrumb)
+    assert result
+    breadcrumbs, items = result
     assert breadcrumbs == []
     assert items == []
 
@@ -153,7 +169,9 @@ def test_parse_act_item() -> None:
     input_breadcrumb = acts_scraper.Breadcrumb(url='file://' + fixture_filename, attrs=attrs)
 
     scraper = acts_scraper.ActsScraper()
-    breadcrumbs, items = scraper.scrape(input_breadcrumb)
+    result = scraper.scrape(input_breadcrumb)
+    assert result
+    breadcrumbs, items = result
     assert breadcrumbs == []
     assert len(items) == 1
     item = items[0]
@@ -179,7 +197,9 @@ def test_parse_act_item_skip_old() -> None:
     input_breadcrumb = acts_scraper.Breadcrumb(url='file://' + fixture_filename, attrs=attrs)
 
     scraper = acts_scraper.ActsScraper()
-    breadcrumbs, items = scraper.scrape(input_breadcrumb)
+    result = scraper.scrape(input_breadcrumb)
+    assert result
+    breadcrumbs, items = result
 
     assert breadcrumbs == []
     assert items == []

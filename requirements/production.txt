@@ -7,3 +7,4 @@ requests==2.13.0
 lxml==3.7.3
 requests-file==1.4.2
 python-dateutil==2.6.0
+click==6.7

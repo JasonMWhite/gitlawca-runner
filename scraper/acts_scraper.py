@@ -29,7 +29,7 @@ ScraperResult = typing.Tuple[typing.Sequence[Breadcrumb], typing.Sequence[ActIte
 class Scraper(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
-    def scrape(self, input_breadcrumb: Breadcrumb) -> ScraperResult:
+    def scrape(self, input_breadcrumb: Breadcrumb) -> typing.Optional[ScraperResult]:
         pass
 
 
@@ -159,8 +159,11 @@ class ActsScraper(Scraper):
             items.append(item)
         return [], items
 
-    def scrape(self, input_breadcrumb: Breadcrumb) -> ScraperResult:
-        input_type = input_breadcrumb.attrs['type']
-        tree, response_url, attrs = self.follow_breadcrumb(input_breadcrumb)
+    def scrape(self, input_breadcrumb: Breadcrumb) -> typing.Optional[ScraperResult]:
+        input_type = input_breadcrumb.attrs.get('type')
+        result: typing.Optional[ScraperResult] = None
+        if input_type:
+            tree, response_url, attrs = self.follow_breadcrumb(input_breadcrumb)
 
-        return self.__functions[input_type]((tree, response_url, attrs))
+            result = self.__functions[input_type]((tree, response_url, attrs))
+        return result

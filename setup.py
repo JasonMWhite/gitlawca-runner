@@ -22,4 +22,8 @@ setup(
         'Programming Language :: Python :: 3',
     ],
     test_suite='tests',
+    entry_points='''
+        [console_scripts]
+        gitlawca=scraper.cli:main
+    ''',
 )

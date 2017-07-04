@@ -2,25 +2,34 @@ import datetime
 import os
 from google.cloud import datastore
 from google.cloud import pubsub
+import pytest
+from scraper import acts_scraper
+from scraper import acts_storage
 from scraper import spider
 from scraper import storage
 
 
+@pytest.fixture
+def acts_spider(pubsub_client: pubsub.Client,
+                datastore_client: datastore.Client,
+                stor: storage.Storage) -> spider.ActsSpider:
+    scraper = acts_scraper.ActsScraper()
+    acts_stor = acts_storage.ActsStorage(datastore_client, stor)
+    return spider.ActsSpider(pubsub_client, scraper, acts_stor)
+
+
 def test_integration(pubsub_client: pubsub.Client,
                      datastore_client: datastore.Client,
-                     stor: storage.Storage):
+                     stor: storage.Storage,
+                     acts_spider: spider.ActsSpider):
     topic = pubsub_client.topic('acts_requests')
-    topic.create()
-    sub = topic.subscription('acts_scraper')
-    sub.create()
     fixture_file = os.path.join(os.path.dirname(__file__), 'fixtures', 'acts_home.html')
     attrs = {'type': 'main_page', 'timestamp': datetime.datetime.now().isoformat()}
     topic.publish(('file://' + fixture_file).encode('utf-8'), **attrs)
 
-    spider_ = spider.get_spider()
     done = False
     while not done:
-        done = not spider_.listen(wait=False)
+        done = not acts_spider.listen(wait=False)
 
     query = datastore_client.query(kind='Act')
     acts = sorted(list(query.fetch()), key=lambda act: act['code'])
