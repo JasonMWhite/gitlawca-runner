@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+curl -o /tmp/gcloud.tar.gz https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-161.0.0-linux-x86_64.tar.gz
+tar -xzf /tmp/gcloud.tar.gz -C /usr/bin
+rm /tmp/gcloud.tar.gz
+/usr/bin/google-cloud-sdk/install.sh --quiet --command-completion true --path-update true --usage-reporting false --additional-components beta cloud-datastore-emulator pubsub-emulator

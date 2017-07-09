@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+source ~/.bashrc
+make test
+make lint
+make typing

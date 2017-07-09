@@ -3,6 +3,7 @@ import subprocess
 import psutil
 import py  # pylint:disable=unused-import
 import pytest
+from google.auth import credentials
 from google.cloud import datastore as google_datastore  # pylint:disable=import-error
 from google.cloud import pubsub  # pylint:disable=import-error
 from scraper import install
@@ -25,14 +26,18 @@ def terminate_subprocess(proc: psutil.Process, name: str):
         LOG.error("Could not find java process to terminate for %s", name)
 
 
+class DoNothingCreds(credentials.Credentials):
+    def refresh(self, request):
+        pass
+
+
 @pytest.fixture(scope='session')
 def datastore_service():
     system = install.get_platform()
     os.environ['CLOUDSDK_CORE_PROJECT'] = 'gitlawca'
     assert install.detect_gcloud(system)
     proc = psutil.Popen(['gcloud', 'beta', 'emulators', 'datastore', 'start',
-                         '--no-store-on-disk', '--consistency=1.0'], stderr=subprocess.PIPE)
-
+                         '--no-store-on-disk', '--consistency=1.0', '--project=gitlawca'], stderr=subprocess.PIPE)
     while True:
         inline = proc.stderr.readline().decode('utf-8').strip()
         if 'export DATASTORE_EMULATOR_HOST=' in inline:
@@ -43,7 +48,8 @@ def datastore_service():
     os.environ['DATASTORE_PROJECT_ID'] = 'gitlawca'
 
     LOG.warning('Starting datastore emulated client at %s', address)
-    yield google_datastore.Client('gitlawca')
+
+    yield google_datastore.Client('gitlawca', credentials=DoNothingCreds())
 
     terminate_subprocess(proc, "gcloud datastore emulator")
 
@@ -75,7 +81,7 @@ def pubsub_service(tmpdir_factory) -> pubsub.Client:
 
     os.environ['PUBSUB_EMULATOR_HOST'] = 'localhost:{}'.format(port)
     LOG.warning('Starting pubsub emulated client on localhost:%s', port)
-    yield pubsub.Client('gitlawca')
+    yield pubsub.Client('gitlawca', credentials=DoNothingCreds())
 
     terminate_subprocess(proc, "gcloud pubsub emulator")
 
